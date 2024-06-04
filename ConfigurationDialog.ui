@@ -136,7 +136,7 @@
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
    <receiver>ConfigurationDialog</receiver>
-   <slot>accept()</slot>
+   <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>248</x>

@@ -90,6 +90,9 @@ class ConfigurationDialog
     */
     void onDownloadFolderClicked();
 
+  protected:
+    void closeEvent(QCloseEvent *) override;
+
   private:
     /**
      * @brief Connects signals to slots. 

@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>601</width>
-    <height>121</height>
+    <height>147</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>601</width>
-    <height>121</height>
+    <width>600</width>
+    <height>0</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>16777215</width>
-    <height>121</height>
+    <height>150</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -32,17 +32,26 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Proxy server IP</string>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="0">
       <widget class="QLabel" name="label_3">
        <property name="text">
         <string>Proxy server port</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="2">
+      <widget class="QLineEdit" name="m_serverIP"/>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLineEdit" name="m_serverPort"/>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLineEdit" name="m_url"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Proxy server IP</string>
        </property>
       </widget>
      </item>
@@ -53,14 +62,29 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="m_url"/>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Protocol</string>
+       </property>
+      </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="m_serverIP"/>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="m_serverPort"/>
+     <item row="3" column="2">
+      <widget class="QComboBox" name="m_protocolCombo">
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
+       <item>
+        <property name="text">
+         <string>SOCKS 4</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>SOCKS 5</string>
+        </property>
+       </item>
+      </widget>
      </item>
     </layout>
    </item>
@@ -84,7 +108,7 @@
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
    <receiver>AddItemDialog</receiver>
-   <slot>accept()</slot>
+   <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>248</x>

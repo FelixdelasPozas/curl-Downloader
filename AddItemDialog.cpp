@@ -19,23 +19,50 @@
 
 // Project
 #include <AddItemDialog.h>
+#include <QCloseEvent>
+#include <QMessageBox>
+#include <QHostAddress>
+#include <QAbstractSocket>
 
 //----------------------------------------------------------------------------
 AddItemDialog::AddItemDialog(QWidget *parent, Qt::WindowFlags f)
 : QDialog(parent, f)
 {
   setupUi(this);
-  connectSignals();
 }
 
 //----------------------------------------------------------------------------
 AddItemDialog::ItemInformation AddItemDialog::getItem() const
 {
-  return ItemInformation(QUrl(), QString(), 0, Protocol::SOCKS4);
+  return ItemInformation(QUrl(m_url->text()), m_serverIP->text(), m_serverPort->text().toUInt(), m_protocolCombo->currentIndex() == 0 ? Protocol::SOCKS4:Protocol::SOCKS5);
 }
 
 //----------------------------------------------------------------------------
-void AddItemDialog::connectSignals()
+void AddItemDialog::closeEvent(QCloseEvent *e)
 {
+  const ItemInformation item(QUrl(m_url->text()), m_serverIP->text(), m_serverPort->text().toUInt(), m_protocolCombo->currentIndex() == 0 ? Protocol::SOCKS4:Protocol::SOCKS5); 
+
+  if(!item.isValid())
+  {
+    e->setAccepted(false);
+    e->ignore();
+
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("Item information");
+    msgBox.setStandardButtons(QMessageBox::Button::Ok);
+    msgBox.setText("The item information is not valid.");
+    msgBox.exec();
+
+    return;
+  }
+
+  accept();
 }
 
+//----------------------------------------------------------------------------
+bool AddItemDialog::ItemInformation::isValid() const
+{
+  QHostAddress address(server);
+  // url.isValid() is a joke... everything goes.
+  return !server.isEmpty() && url.isValid() && (QAbstractSocket::IPv4Protocol == address.protocol()) && port > 0;
+}

@@ -64,8 +64,7 @@ class AddItemDialog
       /**
        * @brief Returns true if the information is valid and false otherwise. 
        */
-      bool isValid() const
-      { return false; }
+      bool isValid() const;
     };
 
     /**
@@ -86,11 +85,8 @@ class AddItemDialog
      */
     ItemInformation getItem() const;
 
-  private:
-    /** 
-     * @brief Connect the signals to the slots. 
-    */
-    void connectSignals();
+  protected:
+    void closeEvent(QCloseEvent *) override;
 };
 
 #endif

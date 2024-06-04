@@ -24,11 +24,14 @@
 #include <QProcess>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QCloseEvent>
+#include <iostream>
 
 //----------------------------------------------------------------------------
 ConfigurationDialog::ConfigurationDialog(QWidget *parent, Qt::WindowFlags f)
 : QDialog(parent, f)
 {
+  std::cout << "cdialog" << std::endl;
   setupUi(this);
   connectSignals();
 }
@@ -36,12 +39,7 @@ ConfigurationDialog::ConfigurationDialog(QWidget *parent, Qt::WindowFlags f)
 //----------------------------------------------------------------------------
 ConfigurationDialog::Configuration ConfigurationDialog::getConfiguration() const
 {
-  const Configuration config(m_curlLocation->text(), m_DownloadFolder->text(), m_waitSpinbox->value());
-
-  if(config.isValid())
-    return config;
-
-  return Configuration(QString(), QString(), 0);
+  return Configuration(m_curlLocation->text(), m_DownloadFolder->text(), m_waitSpinbox->value());
 }
 
 //----------------------------------------------------------------------------
@@ -96,10 +94,31 @@ void ConfigurationDialog::onDownloadFolderClicked()
 }
 
 //----------------------------------------------------------------------------
+void ConfigurationDialog::closeEvent(QCloseEvent *e)
+{
+  const Configuration config(m_curlLocation->text(), m_DownloadFolder->text(), m_waitSpinbox->value());
+
+  if(!config.isValid())
+  {
+    e->setAccepted(false);
+    e->ignore();
+
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("Configuration");
+    msgBox.setStandardButtons(QMessageBox::Button::Ok);
+    msgBox.setText("The configuration data is not valid.");
+    msgBox.exec();
+    return;
+  }
+
+  accept();
+}
+
+//----------------------------------------------------------------------------
 void ConfigurationDialog::connectSignals()
 {
-  connect(this->m_curlButton, SIGNAL(triggered()), this, SLOT(onCurlFolderClicked()));
-  connect(this->m_downloadsButton, SIGNAL(triggered()), this, SLOT(onDownloadFolderClicked()));
+  connect(this->m_curlButton, SIGNAL(clicked()), this, SLOT(onCurlFolderClicked()));
+  connect(this->m_downloadsButton, SIGNAL(clicked()), this, SLOT(onDownloadFolderClicked()));
 }
 
 //----------------------------------------------------------------------------
