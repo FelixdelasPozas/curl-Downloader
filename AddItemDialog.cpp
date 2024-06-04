@@ -29,6 +29,13 @@ AddItemDialog::AddItemDialog(QWidget *parent, Qt::WindowFlags f)
 }
 
 //----------------------------------------------------------------------------
+AddItemDialog::ItemInformation AddItemDialog::getItem() const
+{
+  return ItemInformation(QUrl(), QString(), 0);
+}
+
+//----------------------------------------------------------------------------
 void AddItemDialog::connectSignals()
 {
 }
+

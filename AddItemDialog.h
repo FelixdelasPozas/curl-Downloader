@@ -23,6 +23,10 @@
 // Project
 #include "ui_AddItemDialog.h"
 
+// Qt
+#include <QUrl>
+#include <QString>
+
 /**
  * @brief Dialog to add a new download url and server to use.
  */
@@ -32,6 +36,31 @@ class AddItemDialog
 {
     Q_OBJECT
   public:
+    /**
+     * @brief Item information struct.
+     */
+    struct ItemInformation
+    {
+      QUrl url;          /** url of file to download. */
+      QString server;    /** server address ip. */
+      unsigned int port; /** server address port. */
+
+      /**
+       * @brief ItemInformation constructor. 
+       * @param fileUrl url of file to download.
+       * @param serverIp server address ip.
+       * @param serverPort server address port. 
+       */
+      ItemInformation(const QUrl fileUrl, const QString &serverIp, const unsigned int serverPort)
+      : url{fileUrl}, server{serverIp}, port{serverPort} {};
+
+      /**
+       * @brief Returns true if the information is valid and false otherwise. 
+       */
+      bool isValid() const
+      { return false; }
+    };
+
     /**
      * @brief AddItemDialog class constructor.
      * @param parent Raw pointer of the widget parent of this one. 
@@ -44,6 +73,11 @@ class AddItemDialog
      */
     virtual ~AddItemDialog()
     {};
+
+    /**
+     * @brief Returns the item information in the dialog. 
+     */
+    ItemInformation getItem() const;
 
   private:
     /** 

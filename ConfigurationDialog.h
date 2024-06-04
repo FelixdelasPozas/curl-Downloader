@@ -23,6 +23,10 @@
 // Project
 #include "ui_ConfigurationDialog.h"
 
+// Qt
+#include <QUrl>
+#include <QString>
+
 /**
  * @brief Configuration dialog.
  */
@@ -32,10 +36,35 @@ class ConfigurationDialog
 {
     Q_OBJECT
   public:
+    /** 
+     * @brief Configuration information struct. 
+    */
+    struct Configuration
+    {
+      QString wgetPath;         /** path to wget executable. */
+      QString downloadPath;     /** path to download folder. */
+      unsigned int waitSeconds; /** seconds to wait between retries. */
+
+      /**
+       * @brief Configuration struct constructor. 
+       * @param wPath Path to wget executable.
+       * @param dPath Path to download folder. 
+       * @param waitTime Time to wait between retries. 
+       */
+      Configuration(const QString &wPath, const QString &dPath, const unsigned int waitTime)
+      : wgetPath{wPath}, downloadPath{dPath}, waitSeconds{waitTime} {};
+
+      /**
+       * @brief Returns true if the information is valid and false otherwise. 
+       */
+      bool isValid() const
+      { return false; }
+    };
+
     /**
-     * @brief ConfigurationDialog class constructor. 
-     * @param parent Raw pointer of the widget parent of this one. 
-     * @param f Dialog flags. 
+     * @brief ConfigurationDialog class constructor.
+     * @param parent Raw pointer of the widget parent of this one.
+     * @param f Dialog flags.
      */
     ConfigurationDialog(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
@@ -44,6 +73,11 @@ class ConfigurationDialog
      */
     virtual ~ConfigurationDialog()
     {};
+
+    /**
+     * @brief Checks and returns the configuration data from the dialog. 
+     */
+    Configuration getConfiguration() const;
 
   private:
     /**

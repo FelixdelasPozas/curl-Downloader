@@ -51,10 +51,19 @@ class MainWindow
     */
     void showAboutDialog();
 
+    /**
+     * @brief Adds a new item to download.
+     */
     void addItem();
 
+    /**
+     * @brief Removes currently selected items from the items list. 
+     */
     void removeItem();
 
+    /**
+     * @brief Shows the configuration dialog and stores the changes, if any.
+     */
     void showConfigurationDialog();
 
   private:
@@ -71,10 +80,7 @@ class MainWindow
     /**
      * @brief Save application settings of the registry.
      */
-    void saveSettings();
-
-
-    
+    void saveSettings();  
 };
 
 

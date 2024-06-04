@@ -29,6 +29,12 @@ ConfigurationDialog::ConfigurationDialog(QWidget *parent, Qt::WindowFlags f)
 }
 
 //----------------------------------------------------------------------------
+ConfigurationDialog::Configuration ConfigurationDialog::getConfiguration() const
+{
+  return Configuration(QString(), QString(), 0);
+}
+
+//----------------------------------------------------------------------------
 void ConfigurationDialog::connectSignals()
 {
 }
