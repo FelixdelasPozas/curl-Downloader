@@ -20,6 +20,11 @@
 // Project
 #include <ConfigurationDialog.h>
 
+// Qt
+#include <QProcess>
+#include <QFileDialog>
+#include <QMessageBox>
+
 //----------------------------------------------------------------------------
 ConfigurationDialog::ConfigurationDialog(QWidget *parent, Qt::WindowFlags f)
 : QDialog(parent, f)
@@ -31,10 +36,90 @@ ConfigurationDialog::ConfigurationDialog(QWidget *parent, Qt::WindowFlags f)
 //----------------------------------------------------------------------------
 ConfigurationDialog::Configuration ConfigurationDialog::getConfiguration() const
 {
+  const Configuration config(m_curlLocation->text(), m_DownloadFolder->text(), m_waitSpinbox->value());
+
+  if(config.isValid())
+    return config;
+
   return Configuration(QString(), QString(), 0);
+}
+
+//----------------------------------------------------------------------------
+void ConfigurationDialog::onCurlFolderClicked()
+{
+  const auto curlPath = QFileDialog::getOpenFileName(this, 
+                                                     "Select curl executable", 
+                                                     QDir::currentPath(),
+                                                     "Executable file (*.exe)",
+                                                     nullptr,
+                                                     QFileDialog::Options::enum_type::ReadOnly|QFileDialog::Options::enum_type::DontUseNativeDialog);
+
+  if(curlPath.isEmpty()) return;
+
+  const auto version = isCurlExecutable(curlPath);
+
+  QMessageBox msgBox(this);
+  msgBox.setWindowTitle("Curl executable");
+  msgBox.setStandardButtons(QMessageBox::Button::Ok);
+  msgBox.setText(version.isEmpty() ? QString("Unable to verify curl version.")
+                                   : QString("Detected curl version %1").arg(version));
+  msgBox.exec();
+
+  if(version.isEmpty()) return;
+
+  m_curlLocation->setText(curlPath);
+}
+
+//----------------------------------------------------------------------------
+void ConfigurationDialog::onDownloadFolderClicked()
+{
+  const auto folderPath = QFileDialog::getExistingDirectory(this, 
+                                                            "Select download folder", 
+                                                            QDir::currentPath(),
+                                                            QFileDialog::Options::enum_type::ShowDirsOnly|QFileDialog::Options::enum_type::DontUseNativeDialog);
+
+  if(folderPath.isEmpty()) return;
+
+  QDir testDir{folderPath};
+  if(!testDir.isReadable())
+  {
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle("Downloads folder");
+    msgBox.setStandardButtons(QMessageBox::Button::Ok);
+    msgBox.setText(QString("Unable to read the folder: %1").arg(folderPath));
+    msgBox.exec();
+
+    return;
+  }
+
+  m_DownloadFolder->setText(folderPath);
 }
 
 //----------------------------------------------------------------------------
 void ConfigurationDialog::connectSignals()
 {
+  connect(this->m_curlButton, SIGNAL(triggered()), this, SLOT(onCurlFolderClicked()));
+  connect(this->m_downloadsButton, SIGNAL(triggered()), this, SLOT(onDownloadFolderClicked()));
+}
+
+//----------------------------------------------------------------------------
+QString ConfigurationDialog::isCurlExecutable(const QString &exePath)
+{
+  QProcess process;
+  process.start(exePath,
+                QStringList{"--version"},
+                QIODevice::OpenMode::enum_type::ReadOnly);
+  process.waitForFinished();
+
+  if (process.exitCode() != 0)
+    return QString();
+
+  auto outputText = process.readAllStandardOutput();
+
+  if(!outputText.startsWith("curl"))
+    return QString();
+
+  outputText = outputText.split('\n').first();
+
+  return outputText.split(' ').at(1);
 }

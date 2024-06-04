@@ -58,7 +58,7 @@ class ConfigurationDialog
        * @brief Returns true if the information is valid and false otherwise. 
        */
       bool isValid() const
-      { return false; }
+      { return !curlPath.isEmpty() && !downloadPath.isEmpty() && waitSeconds >= 5; }
     };
 
     /**
@@ -79,11 +79,28 @@ class ConfigurationDialog
      */
     Configuration getConfiguration() const;
 
+  private slots:
+    /**
+     * @brief Gets the executable path and checks for its validity.
+    */
+    void onCurlFolderClicked();
+
+    /**
+     * @brief Gets the download folder and checks for its validity.
+    */
+    void onDownloadFolderClicked();
+
   private:
     /**
      * @brief Connects signals to slots. 
      */
     void connectSignals();
+
+    /**
+     * @brief Returns the version of the curl executable or empty if failed.
+     * @param exePath Path of the executable.
+     */
+    QString isCurlExecutable(const QString &exePath);
 };
 
 #endif
