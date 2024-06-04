@@ -41,18 +41,18 @@ class ConfigurationDialog
     */
     struct Configuration
     {
-      QString wgetPath;         /** path to wget executable. */
+      QString curlPath;         /** path to curl executable. */
       QString downloadPath;     /** path to download folder. */
       unsigned int waitSeconds; /** seconds to wait between retries. */
 
       /**
        * @brief Configuration struct constructor. 
-       * @param wPath Path to wget executable.
+       * @param wPath Path to curl executable.
        * @param dPath Path to download folder. 
        * @param waitTime Time to wait between retries. 
        */
       Configuration(const QString &wPath, const QString &dPath, const unsigned int waitTime)
-      : wgetPath{wPath}, downloadPath{dPath}, waitSeconds{waitTime} {};
+      : curlPath{wPath}, downloadPath{dPath}, waitSeconds{waitTime} {};
 
       /**
        * @brief Returns true if the information is valid and false otherwise. 

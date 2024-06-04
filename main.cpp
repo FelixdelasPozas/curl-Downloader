@@ -51,14 +51,14 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 
   // allow only one instance
   QSharedMemory guard;
-  guard.setKey("wgetDownloader");
+  guard.setKey("curlDownloader");
 
   if (!guard.create(1))
   {
     QMessageBox msgBox;
     msgBox.setWindowIcon(QIcon(":/Downloader/download.svg"));
     msgBox.setIcon(QMessageBox::Warning);
-    msgBox.setText("wget Downloader is already running!");
+    msgBox.setText("curl Downloader is already running!");
     msgBox.setStandardButtons(QMessageBox::Ok);
     msgBox.exec();
     exit(0);

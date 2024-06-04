@@ -37,6 +37,11 @@ class AddItemDialog
     Q_OBJECT
   public:
     /**
+     * @brief Socks protocol enum. 
+     */
+    enum class Protocol: char { SOCKS4 = 0, SOCKS5 = 1 };
+
+    /**
      * @brief Item information struct.
      */
     struct ItemInformation
@@ -44,15 +49,17 @@ class AddItemDialog
       QUrl url;          /** url of file to download. */
       QString server;    /** server address ip. */
       unsigned int port; /** server address port. */
+      Protocol protocol; /** protocol version used. */
 
       /**
        * @brief ItemInformation constructor. 
        * @param fileUrl url of file to download.
        * @param serverIp server address ip.
        * @param serverPort server address port. 
+       * @param fProtocol protocol used.
        */
-      ItemInformation(const QUrl fileUrl, const QString &serverIp, const unsigned int serverPort)
-      : url{fileUrl}, server{serverIp}, port{serverPort} {};
+      ItemInformation(const QUrl fileUrl, const QString &serverIp, const unsigned int serverPort, const Protocol fProtocol)
+      : url{fileUrl}, server{serverIp}, port{serverPort}, protocol{fProtocol} {};
 
       /**
        * @brief Returns true if the information is valid and false otherwise. 

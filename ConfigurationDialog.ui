@@ -33,9 +33,9 @@
    <item>
     <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="1">
-      <widget class="QLineEdit" name="m_wgetLocation">
+      <widget class="QLineEdit" name="m_curlLocation">
        <property name="toolTip">
-        <string>Location of the wget binary</string>
+        <string>Location of the curl binary</string>
        </property>
       </widget>
      </item>
@@ -52,10 +52,10 @@
      <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="toolTip">
-        <string>Location of the wget binary</string>
+        <string>Location of the curl binary</string>
        </property>
        <property name="text">
-        <string>wget executable location</string>
+        <string>curl executable location</string>
        </property>
       </widget>
      </item>
@@ -93,7 +93,7 @@
       </widget>
      </item>
      <item row="0" column="2">
-      <widget class="QPushButton" name="m_wgetButton">
+      <widget class="QPushButton" name="m_curlButton">
        <property name="text">
         <string/>
        </property>

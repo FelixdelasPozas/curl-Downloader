@@ -11,12 +11,12 @@ BEGIN
     BLOCK "040904B0"
     BEGIN
     VALUE "CompanyName", "Felix de las Pozas Alvarez"
-    VALUE "FileDescription", "wget Downloader"
+    VALUE "FileDescription", "curl Downloader"
       VALUE "FileVersion", "@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@"
       VALUE "InternalName", "Downloader"
       VALUE "LegalCopyright", "GPL"
       VALUE "OriginalFilename", "Downloader"
-      VALUE "ProductName", "wget Downloader"
+      VALUE "ProductName", "curl Downloader"
       VALUE "ProductVersion", "@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@"
     END
   END
