@@ -19,12 +19,15 @@
 
 // Project
 #include <MainWindow.h>
+#include <AboutDialog.h>
 
 //----------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
 : QMainWindow(parent, flags)
 {
   setupUi(this);
+
+  connectSignals();
 
   loadSettings();
 }
@@ -33,6 +36,38 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
 MainWindow::~MainWindow()
 {
   saveSettings();
+}
+
+//----------------------------------------------------------------------------
+void MainWindow::showAboutDialog()
+{
+  AboutDialog dialog(this);
+  dialog.exec();
+}
+
+//----------------------------------------------------------------------------
+void MainWindow::addItem()
+{
+}
+
+//----------------------------------------------------------------------------
+void MainWindow::removeItem()
+{
+}
+
+//----------------------------------------------------------------------------
+void MainWindow::showConfigurationDialog()
+{
+}
+
+//----------------------------------------------------------------------------
+void MainWindow::connectSignals()
+{
+  connect(this->actionAbout, SIGNAL(triggered(bool)), this, SLOT(showAboutDialog()));
+  connect(this->actionExit_application, SIGNAL(triggered(bool)), this, SLOT(close()));
+  connect(this->actionAdd_file_to_download, SIGNAL(triggered(bool)), this, SLOT(addItem()));
+  connect(this->actionRemove_file, SIGNAL(triggered(bool)), this, SLOT(removeItem()));
+  connect(this->actionApplication_settings, SIGNAL(triggered(bool)), this, SLOT(showConfigurationDialog()));
 }
 
 //----------------------------------------------------------------------------

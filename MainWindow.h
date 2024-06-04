@@ -45,7 +45,24 @@ class MainWindow
      */
     virtual ~MainWindow();
 
+  private slots:
+    /** 
+     * @brief Shows the about dialog. 
+    */
+    void showAboutDialog();
+
+    void addItem();
+
+    void removeItem();
+
+    void showConfigurationDialog();
+
   private:
+    /**
+     * @brief Connects the signals to the slots. 
+     */
+    void connectSignals();
+
     /**
      * @brief Load application settings from the registry. 
      */
@@ -55,6 +72,9 @@ class MainWindow
      * @brief Save application settings of the registry.
      */
     void saveSettings();
+
+
+    
 };
 
 
