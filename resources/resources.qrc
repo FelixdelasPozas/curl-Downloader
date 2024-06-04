@@ -1,0 +1,19 @@
+<RCC>
+  <qresource prefix="/Downloader">
+	<file>qt.ico</file>
+	<file>download.ico</file>	
+	<file>download.png</file>	
+	<file>download.svg</file>	
+	<file>download-bold.svg</file>
+	<file>add.svg</file>
+	<file>check.svg</file>
+	<file>close.svg</file>
+	<file>warning.svg</file>
+	<file>notes.svg</file>
+	<file>exit.svg</file>
+	<file>file-download.svg</file>
+	<file>folder.svg</file>
+	<file>info.svg</file>
+	<file>settings.svg</file>
+  </qresource>
+</RCC>
