@@ -20,6 +20,8 @@
 // Project
 #include <MainWindow.h>
 #include <AboutDialog.h>
+#include <ConfigurationDialog.h>
+#include <AddItemDialog.h>
 
 //----------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
@@ -48,6 +50,8 @@ void MainWindow::showAboutDialog()
 //----------------------------------------------------------------------------
 void MainWindow::addItem()
 {
+  AddItemDialog dialog(this);
+  dialog.exec();
 }
 
 //----------------------------------------------------------------------------
@@ -58,6 +62,8 @@ void MainWindow::removeItem()
 //----------------------------------------------------------------------------
 void MainWindow::showConfigurationDialog()
 {
+  ConfigurationDialog dialog(this);
+  dialog.exec();
 }
 
 //----------------------------------------------------------------------------
