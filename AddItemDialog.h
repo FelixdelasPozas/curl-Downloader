@@ -22,10 +22,10 @@
 
 // Project
 #include "ui_AddItemDialog.h"
+#include <Utils.h>
 
 // Qt
-#include <QUrl>
-#include <QString>
+#include <QWidget>
 
 /**
  * @brief Dialog to add a new download url and server to use.
@@ -36,37 +36,6 @@ class AddItemDialog
 {
     Q_OBJECT
   public:
-    /**
-     * @brief Socks protocol enum. 
-     */
-    enum class Protocol: char { SOCKS4 = 0, SOCKS5 = 1 };
-
-    /**
-     * @brief Item information struct.
-     */
-    struct ItemInformation
-    {
-      QUrl url;          /** url of file to download. */
-      QString server;    /** server address ip. */
-      unsigned int port; /** server address port. */
-      Protocol protocol; /** protocol version used. */
-
-      /**
-       * @brief ItemInformation constructor. 
-       * @param fileUrl url of file to download.
-       * @param serverIp server address ip.
-       * @param serverPort server address port. 
-       * @param fProtocol protocol used.
-       */
-      ItemInformation(const QUrl fileUrl, const QString &serverIp, const unsigned int serverPort, const Protocol fProtocol)
-      : url{fileUrl}, server{serverIp}, port{serverPort}, protocol{fProtocol} {};
-
-      /**
-       * @brief Returns true if the information is valid and false otherwise. 
-       */
-      bool isValid() const;
-    };
-
     /**
      * @brief AddItemDialog class constructor.
      * @param parent Raw pointer of the widget parent of this one. 
@@ -83,7 +52,7 @@ class AddItemDialog
     /**
      * @brief Returns the item information in the dialog. 
      */
-    ItemInformation getItem() const;
+    Utils::ItemInformation getItem() const;
 
   protected:
     void closeEvent(QCloseEvent *) override;

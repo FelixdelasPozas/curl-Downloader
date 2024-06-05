@@ -57,6 +57,8 @@ set (SOURCE_FILES
 	MainWindow.cpp
   AddItemDialog.cpp
   ConfigurationDialog.cpp
+  ItemWidget.cpp
+  Utils.cpp
 )
   
 set (EXTERNAL_LIBRARIES

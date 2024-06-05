@@ -51,7 +51,12 @@ void MainWindow::showAboutDialog()
 void MainWindow::addItem()
 {
   AddItemDialog dialog(this);
-  dialog.exec();
+  const auto value = dialog.exec();
+
+  if(value == QDialog::Rejected) return;
+
+  auto item = dialog.getItem();
+  // TODO
 }
 
 //----------------------------------------------------------------------------

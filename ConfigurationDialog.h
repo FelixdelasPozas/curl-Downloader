@@ -22,6 +22,7 @@
 
 // Project
 #include "ui_ConfigurationDialog.h"
+#include <Utils.h>
 
 // Qt
 #include <QUrl>
@@ -36,31 +37,6 @@ class ConfigurationDialog
 {
     Q_OBJECT
   public:
-    /** 
-     * @brief Configuration information struct. 
-    */
-    struct Configuration
-    {
-      QString curlPath;         /** path to curl executable. */
-      QString downloadPath;     /** path to download folder. */
-      unsigned int waitSeconds; /** seconds to wait between retries. */
-
-      /**
-       * @brief Configuration struct constructor. 
-       * @param wPath Path to curl executable.
-       * @param dPath Path to download folder. 
-       * @param waitTime Time to wait between retries. 
-       */
-      Configuration(const QString &wPath, const QString &dPath, const unsigned int waitTime)
-      : curlPath{wPath}, downloadPath{dPath}, waitSeconds{waitTime} {};
-
-      /**
-       * @brief Returns true if the information is valid and false otherwise. 
-       */
-      bool isValid() const
-      { return !curlPath.isEmpty() && !downloadPath.isEmpty() && waitSeconds >= 5; }
-    };
-
     /**
      * @brief ConfigurationDialog class constructor.
      * @param parent Raw pointer of the widget parent of this one.
@@ -77,7 +53,7 @@ class ConfigurationDialog
     /**
      * @brief Checks and returns the configuration data from the dialog. 
      */
-    Configuration getConfiguration() const;
+    Utils::Configuration getConfiguration() const;
 
   private slots:
     /**
@@ -98,12 +74,6 @@ class ConfigurationDialog
      * @brief Connects signals to slots. 
      */
     void connectSignals();
-
-    /**
-     * @brief Returns the version of the curl executable or empty if failed.
-     * @param exePath Path of the executable.
-     */
-    QString isCurlExecutable(const QString &exePath);
 };
 
 #endif

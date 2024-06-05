@@ -21,25 +21,23 @@
 #include <ConfigurationDialog.h>
 
 // Qt
-#include <QProcess>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QCloseEvent>
-#include <iostream>
 
 //----------------------------------------------------------------------------
 ConfigurationDialog::ConfigurationDialog(QWidget *parent, Qt::WindowFlags f)
 : QDialog(parent, f)
 {
-  std::cout << "cdialog" << std::endl;
   setupUi(this);
+
   connectSignals();
 }
 
 //----------------------------------------------------------------------------
-ConfigurationDialog::Configuration ConfigurationDialog::getConfiguration() const
+Utils::Configuration ConfigurationDialog::getConfiguration() const
 {
-  return Configuration(m_curlLocation->text(), m_DownloadFolder->text(), m_waitSpinbox->value());
+  return Utils::Configuration(m_curlLocation->text(), m_DownloadFolder->text(), m_waitSpinbox->value());
 }
 
 //----------------------------------------------------------------------------
@@ -54,7 +52,7 @@ void ConfigurationDialog::onCurlFolderClicked()
 
   if(curlPath.isEmpty()) return;
 
-  const auto version = isCurlExecutable(curlPath);
+  const auto version = Utils::curlExecutableVersion(curlPath);
 
   QMessageBox msgBox(this);
   msgBox.setWindowTitle("Curl executable");
@@ -96,7 +94,7 @@ void ConfigurationDialog::onDownloadFolderClicked()
 //----------------------------------------------------------------------------
 void ConfigurationDialog::closeEvent(QCloseEvent *e)
 {
-  const Configuration config(m_curlLocation->text(), m_DownloadFolder->text(), m_waitSpinbox->value());
+  const Utils::Configuration config(m_curlLocation->text(), m_DownloadFolder->text(), m_waitSpinbox->value());
 
   if(!config.isValid())
   {
@@ -121,24 +119,3 @@ void ConfigurationDialog::connectSignals()
   connect(this->m_downloadsButton, SIGNAL(clicked()), this, SLOT(onDownloadFolderClicked()));
 }
 
-//----------------------------------------------------------------------------
-QString ConfigurationDialog::isCurlExecutable(const QString &exePath)
-{
-  QProcess process;
-  process.start(exePath,
-                QStringList{"--version"},
-                QIODevice::OpenMode::enum_type::ReadOnly);
-  process.waitForFinished();
-
-  if (process.exitCode() != 0)
-    return QString();
-
-  auto outputText = process.readAllStandardOutput();
-
-  if(!outputText.startsWith("curl"))
-    return QString();
-
-  outputText = outputText.split('\n').first();
-
-  return outputText.split(' ').at(1);
-}

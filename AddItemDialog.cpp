@@ -32,15 +32,21 @@ AddItemDialog::AddItemDialog(QWidget *parent, Qt::WindowFlags f)
 }
 
 //----------------------------------------------------------------------------
-AddItemDialog::ItemInformation AddItemDialog::getItem() const
+Utils::ItemInformation AddItemDialog::getItem() const
 {
-  return ItemInformation(QUrl(m_url->text()), m_serverIP->text(), m_serverPort->text().toUInt(), m_protocolCombo->currentIndex() == 0 ? Protocol::SOCKS4:Protocol::SOCKS5);
+  return Utils::ItemInformation(QUrl(m_url->text()), 
+                                m_serverIP->text(), 
+                                m_serverPort->text().toUInt(), 
+                                m_protocolCombo->currentIndex() == 0 ? Utils::Protocol::SOCKS4 : Utils::Protocol::SOCKS5);
 }
 
 //----------------------------------------------------------------------------
 void AddItemDialog::closeEvent(QCloseEvent *e)
 {
-  const ItemInformation item(QUrl(m_url->text()), m_serverIP->text(), m_serverPort->text().toUInt(), m_protocolCombo->currentIndex() == 0 ? Protocol::SOCKS4:Protocol::SOCKS5); 
+  const Utils::ItemInformation item(QUrl(m_url->text()), 
+                                    m_serverIP->text(), 
+                                    m_serverPort->text().toUInt(), 
+                                    m_protocolCombo->currentIndex() == 0 ? Utils::Protocol::SOCKS4 : Utils::Protocol::SOCKS5); 
 
   if(!item.isValid())
   {
@@ -57,12 +63,4 @@ void AddItemDialog::closeEvent(QCloseEvent *e)
   }
 
   accept();
-}
-
-//----------------------------------------------------------------------------
-bool AddItemDialog::ItemInformation::isValid() const
-{
-  QHostAddress address(server);
-  // url.isValid() is a joke... everything goes.
-  return !server.isEmpty() && url.isValid() && (QAbstractSocket::IPv4Protocol == address.protocol()) && port > 0;
 }
