@@ -29,6 +29,11 @@ AddItemDialog::AddItemDialog(QWidget *parent, Qt::WindowFlags f)
 : QDialog(parent, f)
 {
   setupUi(this);
+
+  // fixes an error in tab order in ui file.
+  const QList<QWidget*> widgetList = {m_url, m_serverIP, m_serverPort, m_protocolCombo, buttonBox};
+  for(int i = 0; i < widgetList.size()-1; ++i)
+    setTabOrder(widgetList[i], widgetList[i+1]);
 }
 
 //----------------------------------------------------------------------------
