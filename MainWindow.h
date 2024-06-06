@@ -20,9 +20,12 @@
 #ifndef _DOWNLOADER_MAINWINDOW_H
 #define _DOWNLOADER_MAINWINDOW_H
 
+// Process
+#include "ui_MainWindow.h"
+#include <Utils.h>
+
 // Qt
 #include <QMainWindow>
-#include "ui_MainWindow.h"
 
 /**
  * @brief MainWindow class. 
@@ -66,6 +69,11 @@ class MainWindow
      */
     void showConfigurationDialog();
 
+    /**
+     * @brief Manages UI when a donwload finishes.
+     */
+    void onDownloadFinished();
+
   private:
     /**
      * @brief Connects the signals to the slots. 
@@ -81,6 +89,10 @@ class MainWindow
      * @brief Save application settings of the registry.
      */
     void saveSettings();  
+
+  private:
+    Utils::Configuration m_config;               /** application configuration. */
+    std::vector<Utils::ItemInformation> m_items; /** list of items being downloaded. */
 };
 
 
