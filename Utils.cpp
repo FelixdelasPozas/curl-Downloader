@@ -23,13 +23,26 @@
 // Qt
 #include <QHostAddress>
 #include <QProcess>
+#include <iostream>
 
 //----------------------------------------------------------------------------
 bool Utils::ItemInformation::isValid() const
 {
   QHostAddress address(server);
-  // url.isValid() is a joke... everything goes.
-  return !server.isEmpty() && url.isValid() && (QAbstractSocket::IPv4Protocol == address.protocol()) && port > 0;
+  // url.isValid() is a joke... everything goes. Server and port can be empty.
+  return !url.isEmpty() && url.isValid() && (server.isEmpty() || (QAbstractSocket::UnknownNetworkLayerProtocol != address.protocol()));
+}
+
+//----------------------------------------------------------------------------
+std::vector<Utils::ItemInformation>::const_iterator Utils::findItem(const QUrl &url, const std::vector<Utils::ItemInformation> &items)
+{
+  auto isSameUrl = [&url](const Utils::ItemInformation &item)
+  {
+    return url == item.url;
+  };
+
+  auto it = std::find_if(items.cbegin(), items.cend(), isSameUrl);
+  return it;
 }
 
 //----------------------------------------------------------------------------

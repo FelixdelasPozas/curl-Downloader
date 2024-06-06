@@ -20,6 +20,9 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
+// c++
+#include <vector>
+
 // Qt
 #include <QUrl>
 #include <QString>
@@ -32,7 +35,8 @@ namespace Utils
   enum class Protocol : char
   {
     SOCKS4 = 0,
-    SOCKS5 = 1
+    SOCKS5 = 1,
+    NONE = 2
   };
 
   /**
@@ -55,11 +59,24 @@ namespace Utils
     ItemInformation(const QUrl fileUrl, const QString &serverIp, const unsigned int serverPort, const Protocol fProtocol)
     : url{fileUrl}, server{serverIp}, port{serverPort}, protocol{fProtocol} {};
 
+    /** 
+     * @brief ItemInformation empty constructor. 
+     */
+    ItemInformation(){};
+
     /**
      * @brief Returns true if the information is valid and false otherwise.
      */
     bool isValid() const;
   };
+
+  /**
+   * @brief Finds and returns the item iterator that has the same url as the given one. 
+   * @param url Url to find.
+   * @param items List of items.
+   * @return Item iterator or cend().
+   */
+  std::vector<ItemInformation>::const_iterator findItem(const QUrl &url, const std::vector<ItemInformation> &items);
 
   /**
    * @brief Configuration information struct.
@@ -78,6 +95,11 @@ namespace Utils
      */
     Configuration(const QString &wPath, const QString &dPath, const unsigned int waitTime)
     : curlPath{wPath}, downloadPath{dPath}, waitSeconds{waitTime} {};
+
+    /**
+     * @brief Configuration struct empty constructor.
+     */
+    Configuration(){};
 
     /**
      * @brief Returns true if the information is valid and false otherwise.
