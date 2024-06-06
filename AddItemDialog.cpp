@@ -29,11 +29,6 @@ AddItemDialog::AddItemDialog(QWidget *parent, Qt::WindowFlags f)
 : QDialog(parent, f)
 {
   setupUi(this);
-
-  // fixes an error in tab order in ui file.
-  const QList<QWidget*> widgetList = {m_url, m_serverIP, m_serverPort, m_protocolCombo, buttonBox};
-  for(int i = 0; i < widgetList.size()-1; ++i)
-    setTabOrder(widgetList[i], widgetList[i+1]);
 }
 
 //----------------------------------------------------------------------------
@@ -42,7 +37,7 @@ Utils::ItemInformation AddItemDialog::getItem() const
   return Utils::ItemInformation(QUrl(m_url->text()), 
                                 m_serverIP->text(), 
                                 m_serverPort->text().toUInt(), 
-                                m_protocolCombo->currentIndex() == 0 ? Utils::Protocol::SOCKS4 : Utils::Protocol::SOCKS5);
+                                static_cast<Utils::Protocol>(m_protocolCombo->currentIndex()));
 }
 
 //----------------------------------------------------------------------------
@@ -51,7 +46,7 @@ void AddItemDialog::closeEvent(QCloseEvent *e)
   const Utils::ItemInformation item(QUrl(m_url->text()), 
                                     m_serverIP->text(), 
                                     m_serverPort->text().toUInt(), 
-                                    m_protocolCombo->currentIndex() == 0 ? Utils::Protocol::SOCKS4 : Utils::Protocol::SOCKS5); 
+                                    static_cast<Utils::Protocol>(m_protocolCombo->currentIndex()));
 
   if(!item.isValid())
   {
