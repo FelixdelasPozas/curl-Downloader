@@ -33,6 +33,12 @@ ConsoleOutputDialog::ConsoleOutputDialog(QWidget *parent, Qt::WindowFlags f)
 //----------------------------------------------------------------------------
 void ConsoleOutputDialog::addText(const QString &text)
 {
+  if(m_console->toPlainText().length() > 100000)
+  {
+    m_console->clear();
+    m_console->insertPlainText("Cleared console!\n");
+  }
+
   m_console->insertPlainText(text);
   m_console->moveCursor(QTextCursor::MoveOperation::End);  
 }
