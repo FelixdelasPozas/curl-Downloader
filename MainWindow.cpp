@@ -27,6 +27,7 @@
 // Qt
 #include <QMessageBox>
 #include <QSettings>
+#include <QMenu>
 
 // C++ 
 #include <cassert>
@@ -39,12 +40,16 @@ const QString WAIT_TIME_KEY = "Wait time";
 //----------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
 : QMainWindow(parent, flags)
+, m_needsExit{false}
+, m_trayIcon{new QSystemTrayIcon(QIcon(":/Downloader/download-bold.svg"), this)}
 {
   setupUi(this);
 
   connectSignals();
 
   loadSettings();
+
+  setupTrayIcon();
 
   this->actionAdd_file_to_download->setEnabled(m_config.isValid());
 }
@@ -114,6 +119,7 @@ void MainWindow::addItem()
   connect(itemWidget, SIGNAL(finished()), this, SLOT(onProcessFinished()));
 
   m_scrollLayout->insertWidget(m_scrollLayout->count()-1, itemWidget);
+  m_trayIcon->setToolTip(QString("Downloading %1 files.").arg(m_items.size()));
 }
 
 //----------------------------------------------------------------------------
@@ -137,16 +143,23 @@ void MainWindow::onProcessFinished()
   {
     const auto item = widget->item();
 
-    Utils::AutoCloseMessageBox msgBox(this);
-    msgBox.setWindowTitle("Item information");
-    msgBox.setStandardButtons(QMessageBox::Button::Ok);
-
-    if(widget->hasFinished())
-      msgBox.setText(QString("The url '%1' has finished downloading!").arg(item->url.fileName()));
+    if(!isVisible())
+    {
+      m_trayIcon->showMessage("File downloaded!", item->url.fileName());
+    }
     else
-      msgBox.setText(QString("The url '%1' has been aborted!").arg(item->url.fileName()));
+    {
+      Utils::AutoCloseMessageBox msgBox(this);
+      msgBox.setWindowTitle("Item information");
+      msgBox.setStandardButtons(QMessageBox::Button::Ok);
 
-    msgBox.exec();
+      if(widget->hasFinished())
+        msgBox.setText(QString("The url '%1' has finished downloading!").arg(item->url.fileName()));
+      else
+        msgBox.setText(QString("The url '%1' has been aborted!").arg(item->url.fileName()));
+
+      msgBox.exec();
+    }
 
     auto itemIt = Utils::findItem(item->url, m_items);
     auto widgetIt = m_widgets.begin() + std::distance(m_items.cbegin(), itemIt);
@@ -156,6 +169,9 @@ void MainWindow::onProcessFinished()
     m_scrollLayout->removeWidget(widget);
     widget->deleteLater();
     delete item;
+
+    const QString trayMessage = !m_items.empty() ? QString("Downloading %1 files.").arg(m_items.size()) : QString("No downloads.");
+    m_trayIcon->setToolTip(trayMessage);
   }
   else
   {
@@ -167,10 +183,38 @@ void MainWindow::onProcessFinished()
 //----------------------------------------------------------------------------
 void MainWindow::connectSignals()
 {
-  connect(this->actionAbout, SIGNAL(triggered(bool)), this, SLOT(showAboutDialog()));
-  connect(this->actionExit_application, SIGNAL(triggered(bool)), this, SLOT(close()));
+  connect(this->actionExit_application,     SIGNAL(triggered(bool)), this, SLOT(quitApplication()));
+  connect(this->actionAbout,                SIGNAL(triggered(bool)), this, SLOT(showAboutDialog()));
+  connect(this->actionExit_application,     SIGNAL(triggered(bool)), this, SLOT(close()));
   connect(this->actionAdd_file_to_download, SIGNAL(triggered(bool)), this, SLOT(addItem()));
   connect(this->actionApplication_settings, SIGNAL(triggered(bool)), this, SLOT(showConfigurationDialog()));
+
+  connect(m_trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+          this,       SLOT(onTrayActivated(QSystemTrayIcon::ActivationReason)));  
+}
+
+//----------------------------------------------------------------------------
+void MainWindow::quitApplication()
+{
+  m_needsExit = true;
+  close();
+}
+
+//----------------------------------------------------------------------------
+void MainWindow::closeEvent(QCloseEvent *e)
+{
+  if(!m_needsExit)
+  {
+    hide();
+    m_trayIcon->show();
+
+    e->accept();
+  }
+  else
+  {
+    QMainWindow::closeEvent(e);
+    QApplication::exit(0);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -202,4 +246,44 @@ void MainWindow::saveSettings()
   settings.setValue(DOWNLOAD_FOLDER_KEY, m_config.downloadPath);
   settings.setValue(WAIT_TIME_KEY, m_config.waitSeconds);
   settings.sync();
+}
+
+//----------------------------------------------------------------------------
+void MainWindow::setupTrayIcon()
+{
+  auto menu = new QMenu(tr("Menu"));
+
+  auto showAction = new QAction(QIcon(":/Downloader/file-download.svg"), tr("Restore..."));
+  connect(showAction, SIGNAL(triggered(bool)), this, SLOT(onTrayActivated()));
+
+  auto addFile = new QAction(QIcon(":/Downloader/add.svg"), tr("Add item..."));
+  connect(addFile, SIGNAL(triggered(bool)), this, SLOT(addItem()));
+
+  auto aboutAction = new QAction(QIcon(":/Downloader/info.svg"), tr("About..."));
+  connect(aboutAction, SIGNAL(triggered(bool)), this, SLOT(showAboutDialog()));
+
+  auto quitAction = new QAction(QIcon(":/Downloader/exit.svg"), tr("Quit"));
+  connect(quitAction, SIGNAL(triggered(bool)), this, SLOT(quitApplication()));
+
+  menu->addAction(showAction);
+  menu->addSeparator();
+  menu->addAction(addFile);
+  menu->addSeparator();
+  menu->addAction(aboutAction);
+  menu->addSeparator();
+  menu->addAction(quitAction);
+
+  m_trayIcon->setContextMenu(menu);
+  m_trayIcon->setToolTip(tr("No downloads."));
+  m_trayIcon->hide();
+}
+
+//----------------------------------------------------------------------------
+void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
+{
+  if(m_trayIcon->isVisible() && reason == QSystemTrayIcon::DoubleClick)
+  {
+    showNormal();
+    m_trayIcon->hide();
+  }
 }

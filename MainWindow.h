@@ -26,6 +26,7 @@
 
 // Qt
 #include <QMainWindow>
+#include <QSystemTrayIcon>
 
 class ItemWidget;
 
@@ -50,7 +51,15 @@ class MainWindow
      */
     virtual ~MainWindow();
 
+  protected: 
+    virtual void closeEvent(QCloseEvent *e) override;
+
   private slots:
+    /** 
+     * @brief Closes the application.
+     */
+    void quitApplication();
+
     /** 
      * @brief Shows the about dialog. 
     */
@@ -71,6 +80,12 @@ class MainWindow
      */
     void onProcessFinished();
 
+    /** 
+     * @brief Restores the main dialog if the user double-clicks the tray icon.
+     * @param[in] reason Tray icon activation reason.
+     */
+    void onTrayActivated(QSystemTrayIcon::ActivationReason reason = QSystemTrayIcon::DoubleClick);
+
   private:
     /**
      * @brief Connects the signals to the slots. 
@@ -87,11 +102,17 @@ class MainWindow
      */
     void saveSettings();  
 
+    /** 
+     * @brief Helper method to setup and connect the tray icon.
+     */
+    void setupTrayIcon();    
+
   private:
     Utils::Configuration m_config;                 /** application configuration. */
     std::vector<Utils::ItemInformation *> m_items; /** list of items being downloaded. */
     std::vector<ItemWidget *> m_widgets;           /** list of item widgets. */
+    bool m_needsExit;                              /** true if the application has to quit and false to minimize to tray. */
+    QSystemTrayIcon *m_trayIcon;                   /** tray icon. */
 };
-
 
 #endif
