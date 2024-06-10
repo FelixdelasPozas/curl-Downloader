@@ -32,7 +32,7 @@
  */
 class AddItemDialog
 : public QDialog
-, private Ui::AddItemDialog
+, public Ui::AddItemDialog
 {
     Q_OBJECT
   public:
@@ -50,9 +50,15 @@ class AddItemDialog
     {};
 
     /**
+     * @brief Sets the information in the dialog.
+     * @param item ItemInformation struct.
+     */
+    void setItem(const Utils::ItemInformation *item);
+
+    /**
      * @brief Returns the item information in the dialog. 
      */
-    Utils::ItemInformation getItem() const;
+    Utils::ItemInformation* getItem() const;
 
   protected:
     void closeEvent(QCloseEvent *) override;

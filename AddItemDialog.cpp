@@ -34,21 +34,37 @@ AddItemDialog::AddItemDialog(QWidget *parent, Qt::WindowFlags f)
 }
 
 //----------------------------------------------------------------------------
-Utils::ItemInformation AddItemDialog::getItem() const
+void AddItemDialog::setItem(const Utils::ItemInformation *item)
 {
-  return Utils::ItemInformation(QUrl(m_url->text()), 
-                                m_serverIP->text(), 
-                                m_serverPort->text().toUInt(), 
-                                static_cast<Utils::Protocol>(m_protocolCombo->currentIndex()));
+  if(item->isValid())
+  {
+    m_url->setText(item->url.toString());
+    m_serverIP->setText(item->server);
+    m_serverPort->setText(QString::number(item->port));
+
+    const int index = item->protocol == Utils::Protocol::SOCKS4 ? 0 : (item->protocol == Utils::Protocol::NONE ? 2 : 1);
+    m_protocolCombo->setCurrentIndex(index);
+  }
+}
+
+//----------------------------------------------------------------------------
+Utils::ItemInformation* AddItemDialog::getItem() const
+{
+  auto item = new Utils::ItemInformation(QUrl(m_url->text()),
+                                         m_serverIP->text(),
+                                         m_serverPort->text().toUInt(),
+                                         static_cast<Utils::Protocol>(m_protocolCombo->currentIndex()));
+
+  return item;                                
 }
 
 //----------------------------------------------------------------------------
 void AddItemDialog::closeEvent(QCloseEvent *e)
 {
-  const Utils::ItemInformation item(QUrl(m_url->text()), 
-                                    m_serverIP->text(), 
-                                    m_serverPort->text().toUInt(), 
-                                    static_cast<Utils::Protocol>(m_protocolCombo->currentIndex()));
+  const auto item = Utils::ItemInformation(QUrl(m_url->text()),
+                                           m_serverIP->text(),
+                                           m_serverPort->text().toUInt(),
+                                           static_cast<Utils::Protocol>(m_protocolCombo->currentIndex()));
 
   if(!item.isValid())
   {
