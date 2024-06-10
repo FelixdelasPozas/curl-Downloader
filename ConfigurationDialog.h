@@ -55,6 +55,12 @@ class ConfigurationDialog
      */
     Utils::Configuration getConfiguration() const;
 
+    /**
+     * @brief Sets the configuration data. 
+     * @param config Configuration struct reference. 
+     */
+    void setConfiguration(const Utils::Configuration &config);
+
   private slots:
     /**
      * @brief Gets the executable path and checks for its validity.

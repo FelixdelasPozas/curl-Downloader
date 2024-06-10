@@ -41,6 +41,17 @@ Utils::Configuration ConfigurationDialog::getConfiguration() const
 }
 
 //----------------------------------------------------------------------------
+void ConfigurationDialog::setConfiguration(const Utils::Configuration &config)
+{
+  if(config.isValid())
+  {
+    m_curlLocation->setText(config.curlPath);
+    m_DownloadFolder->setText(config.downloadPath);
+    m_waitSpinbox->setValue(config.waitSeconds);
+  }
+}
+
+//----------------------------------------------------------------------------
 void ConfigurationDialog::onCurlFolderClicked()
 {
   const auto curlPath = QFileDialog::getOpenFileName(this, 
