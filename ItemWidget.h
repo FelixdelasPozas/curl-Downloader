@@ -29,6 +29,8 @@
 #include <QWidget>
 #include <QProcess>
 
+class AddItemDialog;
+
 /**
  * @brief Widget for the list widget representing an item. 
  */
@@ -45,7 +47,7 @@ class ItemWidget
      * @param parent Raw pointer of thw widget parent of this one. 
      * @param f Window flags.
      */
-    ItemWidget(const Utils::Configuration &m_config, Utils::ItemInformation &item, QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+    ItemWidget(const Utils::Configuration &m_config, Utils::ItemInformation *item, QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
     /** 
      * @brief ItemWidget class virtual destructor. 
@@ -55,7 +57,7 @@ class ItemWidget
     /**
      * @brief Returns the item information of this widget. 
      */
-    const Utils::ItemInformation &item() const
+    const Utils::ItemInformation *item() const
     { return m_item; }
 
     /**
@@ -81,7 +83,8 @@ class ItemWidget
     void finished();
 
   protected:
-    virtual void paintEvent(QPaintEvent *event);
+    virtual void paintEvent(QPaintEvent *event) override;
+    virtual void mousePressEvent(QMouseEvent *) override;
 
   private: 
     enum class Status: char { STARTING = 0, DOWNLOADING = 1, RETRYING = 2, ERROR = 3, FINISHED = 4, ABORTED = 5 };
@@ -134,13 +137,14 @@ class ItemWidget
     void startProcess();
 
   private:
-    Utils::ItemInformation &m_item;       /** item information. */
+    Utils::ItemInformation *m_item;       /** item information. */
     const Utils::Configuration &m_config; /** application configuration reference. */
     bool m_finished;                      /** true if the item has been downloaded and false otherwise. */
     bool m_aborted;                       /** true if aborted and false otherwise. */
     float m_progressVal;                  /** progress value in [0,100] */
     ConsoleOutputDialog m_console;        /** console text dialog. */
     QProcess m_process;                   /** curl process. */
+    AddItemDialog *m_addItem;             /** dialog to modify the item if necessary. */
 };
 
 #endif

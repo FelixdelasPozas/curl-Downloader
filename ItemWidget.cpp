@@ -19,6 +19,7 @@
 
 // Project
 #include <ItemWidget.h>
+#include <AddItemDialog.h>
 
 // Qt
 #include <QPainter>
@@ -31,7 +32,7 @@
 #include <unistd.h> // sleep
 
 //----------------------------------------------------------------------------
-ItemWidget::ItemWidget(const Utils::Configuration &config, Utils::ItemInformation &item, QWidget* parent, Qt::WindowFlags f)
+ItemWidget::ItemWidget(const Utils::Configuration &config, Utils::ItemInformation *item, QWidget* parent, Qt::WindowFlags f)
 : QWidget(parent, f)
 , m_item{item}
 , m_config{config}
@@ -40,6 +41,7 @@ ItemWidget::ItemWidget(const Utils::Configuration &config, Utils::ItemInformatio
 , m_progressVal{0}
 , m_console{parent}
 , m_process{this}
+, m_addItem{nullptr}
 {
   setupUi(this);
   m_console.hide();
@@ -47,9 +49,9 @@ ItemWidget::ItemWidget(const Utils::Configuration &config, Utils::ItemInformatio
 
   connectSignals();
 
-  setToolTip(m_item.toText());
+  setToolTip(m_item->toText());
 
-  m_filename->setText("<b>" + m_item.url.fileName() + "</b>");
+  m_filename->setText("<p style='white-space:pre'><b>" + m_item->url.fileName() + "</b>");
   onProgressChanged(0);
   setStatus(Status::STARTING);
   startProcess();
@@ -58,7 +60,16 @@ ItemWidget::ItemWidget(const Utils::Configuration &config, Utils::ItemInformatio
 //----------------------------------------------------------------------------
 ItemWidget::~ItemWidget()
 {
-  //stopProcess();
+  if(m_addItem)
+  {
+    if (m_addItem->isVisible())
+      m_addItem->done(QDialog::Rejected);
+
+    m_addItem->deleteLater();
+    m_addItem = nullptr;
+  }
+
+  m_addItem = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -77,28 +88,28 @@ void ItemWidget::onErrorOcurred(QProcess::ProcessError error)
   switch(error)
   {
     case QProcess::ProcessError::Crashed:
-      errorMessage = "process crashed!";
+      errorMessage = "Process crashed!";
       break;
     case QProcess::ProcessError::FailedToStart:
-      errorMessage = "process failed to start!";
+      errorMessage = "Process failed to start!";
       break;
     case QProcess::ProcessError::ReadError:
-      errorMessage = "process read error!";
+      errorMessage = "Process read error!";
       break;
     case QProcess::ProcessError::Timedout:
-      errorMessage = "process timed out!";
+      errorMessage = "Process timed out!";
       break;
     case QProcess::ProcessError::WriteError:
-      errorMessage = "process write error!";
+      errorMessage = "Process write error!";
       break;
     default:
     case QProcess::ProcessError::UnknownError:
-      errorMessage = "process unknown error!";
+      errorMessage = "Process unknown error!";
       break;
   }
 
   setStatus(Status::ERROR);
-  m_console.addText("<b>" + errorMessage + "</b>");
+  m_console.addText("\n" + errorMessage + "\n");
 }
 
 //----------------------------------------------------------------------------
@@ -113,7 +124,7 @@ void ItemWidget:: onProgressChanged(const float progressValue)
 //----------------------------------------------------------------------------
 void ItemWidget::onFinished(int code , QProcess::ExitStatus status)
 {
-  QString message = "Process finished with code: " + QString::number(code) + " status ";
+  QString message = "Process finished with code: " + QString::number(code) + ". Status: ";
   switch(status)
   {
     case QProcess::ExitStatus::NormalExit:
@@ -124,15 +135,17 @@ void ItemWidget::onFinished(int code , QProcess::ExitStatus status)
       break;
   }
 
-  if(!m_finished && !m_aborted)
-    m_finished = (code == 0);
-
+  m_console.addText("\n" + message + "\n");
   m_console.addText(message);
 
   if(!m_finished && !m_aborted)
+    m_finished = (code == 0);
+
+  if(!m_finished && !m_aborted)
   {
+    m_finished = (code == 0);
     setStatus(Status::RETRYING);
-    m_console.addText(QString("Retrying in %1 seconds...").arg(m_config.waitSeconds));
+    m_console.addText(QString("\nRetrying in %1 seconds...\n").arg(m_config.waitSeconds));
     sleep(m_config.waitSeconds);
     startProcess();
   }
@@ -141,11 +154,13 @@ void ItemWidget::onFinished(int code , QProcess::ExitStatus status)
     if(m_aborted)
     {
       setStatus(Status::ABORTED);
+
       emit cancelled();
     }
     else
     {
       setStatus(Status::FINISHED);
+
       emit finished();
     }
   }
@@ -197,7 +212,7 @@ void ItemWidget::setStatus(ItemWidget::Status status)
       statusText = QString("<b>Downloading</b>");
       break;
     case Status::ERROR:
-      statusText = QString("<b><span style=\"color:#aa0000;\">ERROR</span></b>");
+      statusText = QString("<b><span style=\"color:#aa0000;\">Error</span></b>");
       break;
     case Status::RETRYING:
       statusText = QString("<b><span style=\"color:#0000aa;\">Retrying</span></b>");
@@ -234,21 +249,21 @@ void ItemWidget::startProcess()
   arguments << "--retry" << "999"; // <num> Retry request if transient problems occur
   arguments << "--retry-connrefused"; // Retry on connection refused (use with --retry)
   arguments << "--retry-delay" << QString::number(m_config.waitSeconds); // <seconds> Wait time between retries  
-  arguments << "--output" << m_item.url.fileName();
-  if(!m_item.server.isEmpty())
+  arguments << "--output" << m_item->url.fileName();
+  if(!m_item->server.isEmpty())
   {
-    if(m_item.protocol != Utils::Protocol::NONE)
+    if(m_item->protocol != Utils::Protocol::NONE)
     {
       arguments << "--proxy-insecure"; // Do HTTPS proxy connections without verifying the proxy
 
-      const auto serverText = QString("%1:%2").arg(m_item.server).arg(m_item.port);
-      arguments << protocols.at(static_cast<int>(m_item.protocol)) << serverText;
+      const auto serverText = QString("%1:%2").arg(m_item->server).arg(m_item->port);
+      arguments << protocols.at(static_cast<int>(m_item->protocol)) << serverText;
     }
   }
-  arguments << "--url" << m_item.url.toString();
+  arguments << "--url" << m_item->url.toString();
 
   // Continue.
-  if(QDir(m_config.downloadPath).exists(m_item.url.fileName()))
+  if(QDir(m_config.downloadPath).exists(m_item->url.fileName()))
     arguments << "-C" << "-";
 
   m_process.setArguments(arguments);
@@ -262,7 +277,7 @@ void ItemWidget::stopProcess()
 {
   if(!m_aborted && m_process.state() != QProcess::ProcessState::NotRunning)
   {
-    const auto filename = m_item.url.fileName();
+    const auto filename = m_item->url.fileName();
     {
       QMessageBox msgBox(this);
       msgBox.setWindowTitle(filename);
@@ -286,11 +301,11 @@ void ItemWidget::stopProcess()
 //----------------------------------------------------------------------------
 void ItemWidget::paintEvent(QPaintEvent *event)
 {
-  const float progressXPoint = size().width() * m_progressVal/100.f;
+  const int progressXPoint = size().width() * m_progressVal/100.f;
   auto wRect = rect();
-  wRect.setWidth(progressXPoint);
+  wRect.setWidth(std::min(progressXPoint, wRect.width()));
 
-  // White background.
+  // green progress background.
 	QPainter painter(this);
   painter.setPen(Qt::transparent);
   painter.setBrush(QColor(120, 255, 120));
@@ -298,4 +313,26 @@ void ItemWidget::paintEvent(QPaintEvent *event)
   painter.end();
 
   QWidget::paintEvent(event);
+}
+
+//----------------------------------------------------------------------------
+void ItemWidget::mousePressEvent(QMouseEvent *)
+{
+  if(!m_addItem)
+  {
+    m_addItem = new AddItemDialog(this);
+    m_addItem->setItem(m_item);
+    m_addItem->setWindowTitle("Modify item server and port");
+    m_addItem->m_url->setEnabled(false);
+  }
+
+  if(m_addItem->exec() == QDialog::Accepted)
+  {
+    const auto item = m_addItem->getItem();
+    m_item->url = item->url;
+    m_item->port = item->port;
+    m_item->protocol = item->protocol;
+    m_item->server = item->server;
+    delete item;
+  }
 }
