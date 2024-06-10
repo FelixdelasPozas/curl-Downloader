@@ -67,7 +67,7 @@ MainWindow::~MainWindow()
     disconnect(m_widgets[i]);
     m_widgets[i]->stopProcess();
     m_scrollLayout->removeWidget(m_widgets[i]);
-    delete m_widgets[i];
+    m_widgets[i]->deleteLater();
   }
 
   m_widgets.clear();
@@ -93,13 +93,15 @@ void MainWindow::addItem()
 
   auto item = dialog.getItem();
 
-  if(Utils::findItem(item.url, m_items) != m_items.cend())
+  if(Utils::findItem(item->url, m_items) != m_items.cend())
   {
     QMessageBox msgBox(this);
     msgBox.setWindowTitle("Item information");
     msgBox.setStandardButtons(QMessageBox::Button::Ok);
-    msgBox.setText(QString("The url '%1' is already being downloaded!").arg(item.url.fileName()));
+    msgBox.setText(QString("The url '%1' is already being downloaded!").arg(item->url.fileName()));
     msgBox.exec();
+
+    delete item;
     return;
   }
   
@@ -131,32 +133,33 @@ void MainWindow::showConfigurationDialog()
 void MainWindow::onProcessFinished()
 {
   const auto widget = qobject_cast<ItemWidget*>(sender());
-
   if(widget)
   {
-    const auto item(widget->item());
+    const auto item = widget->item();
 
     Utils::AutoCloseMessageBox msgBox(this);
     msgBox.setWindowTitle("Item information");
     msgBox.setStandardButtons(QMessageBox::Button::Ok);
 
     if(widget->hasFinished())
-      msgBox.setText(QString("The url '%1' has finished downloading!").arg(item.url.fileName()));
+      msgBox.setText(QString("The url '%1' has finished downloading!").arg(item->url.fileName()));
     else
-      msgBox.setText(QString("The url '%1' has been aborted!").arg(item.url.fileName()));
+      msgBox.setText(QString("The url '%1' has been aborted!").arg(item->url.fileName()));
 
     msgBox.exec();
 
-    m_scrollLayout->removeWidget(widget);
-
-    auto itemIt = Utils::findItem(item.url, m_items);
+    auto itemIt = Utils::findItem(item->url, m_items);
     auto widgetIt = m_widgets.begin() + std::distance(m_items.cbegin(), itemIt);
     m_widgets.erase(widgetIt);
     m_items.erase(itemIt);
-    delete widget;
+
+    m_scrollLayout->removeWidget(widget);
+    widget->deleteLater();
+    delete item;
   }
   else
   {
+    QMessageBox::critical(this, "Crash!", "Unable to identify removeItem sender!", QMessageBox::Button::Ok);
     throw std::runtime_error("Unable to identify removeItem sender!");
   }
 }

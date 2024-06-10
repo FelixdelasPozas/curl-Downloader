@@ -85,7 +85,7 @@ namespace Utils
    * @param items List of items.
    * @return Item const_iterator or cend().
    */
-  std::vector<ItemInformation>::const_iterator findItem(const QUrl &url, const std::vector<ItemInformation> &items);
+  std::vector<ItemInformation*>::const_iterator findItem(const QUrl &url, const std::vector<ItemInformation *> &items);
 
   /**
    * @brief Configuration information struct.

@@ -88,9 +88,9 @@ class MainWindow
     void saveSettings();  
 
   private:
-    Utils::Configuration m_config;               /** application configuration. */
-    std::vector<Utils::ItemInformation> m_items; /** list of items being downloaded. */
-    std::vector<ItemWidget *> m_widgets;         /** list of item widgets. */
+    Utils::Configuration m_config;                 /** application configuration. */
+    std::vector<Utils::ItemInformation *> m_items; /** list of items being downloaded. */
+    std::vector<ItemWidget *> m_widgets;           /** list of item widgets. */
 };
 
 

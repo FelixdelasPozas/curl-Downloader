@@ -40,23 +40,23 @@ bool Utils::ItemInformation::isValid() const
 QString Utils::ItemInformation::toText() const
 {
   QString text;
-  text += QString("<b>File:</b>%1\n").arg(url.toString());
+  text += QString("File: %1\n").arg(url.toString());
   if(!server.isEmpty())
-    text += QString("<b>Proxy server:</b>%1:%2\n").arg(server).arg(port);
+    text += QString("Proxy server: %1:%2\n").arg(server).arg(port);
   else
-    text += QString("<b>Proxy server:</b>None");
+    text += QString("Proxy server: None");
 
-  if(!server.isEmpty()) text += QString("<b>Protocol:</b>%1").arg(protocol == Protocol::SOCKS4 ? "SOCKS4": (protocol == Protocol::NONE) ? "None":"SOCKS5");
+  if(!server.isEmpty()) text += QString("Protocol: %1").arg(protocol == Protocol::SOCKS4 ? "SOCKS4": (protocol == Protocol::NONE) ? "None":"SOCKS5");
 
   return text;
 }
 
 //----------------------------------------------------------------------------
-std::vector<Utils::ItemInformation>::const_iterator Utils::findItem(const QUrl &url, const std::vector<Utils::ItemInformation> &items)
+std::vector<Utils::ItemInformation *>::const_iterator Utils::findItem(const QUrl &url, const std::vector<Utils::ItemInformation *> &items)
 {
-  auto isSameUrl = [&url](const Utils::ItemInformation &item)
+  auto isSameUrl = [&url](const Utils::ItemInformation *item)
   {
-    return url == item.url;
+    return url == item->url;
   };
   auto it = std::find_if(items.cbegin(), items.cend(), isSameUrl);
   return it;
