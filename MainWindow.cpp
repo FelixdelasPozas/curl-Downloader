@@ -36,6 +36,7 @@
 const QString CURL_LOCATION_KEY = "Curl executable location";
 const QString DOWNLOAD_FOLDER_KEY = "Download folder";
 const QString WAIT_TIME_KEY = "Wait time";
+const QString GEOMETRY = "Window geometry";
 
 //----------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
@@ -232,6 +233,12 @@ void MainWindow::loadSettings()
     showConfigurationDialog();
   else
     m_config = config;
+
+  if(settings.contains(GEOMETRY))
+  {
+    auto geometry = settings.value(GEOMETRY).toByteArray();
+    restoreGeometry(geometry);
+  }  
 }
 
 //----------------------------------------------------------------------------
@@ -245,6 +252,7 @@ void MainWindow::saveSettings()
   settings.setValue(CURL_LOCATION_KEY, m_config.curlPath);
   settings.setValue(DOWNLOAD_FOLDER_KEY, m_config.downloadPath);
   settings.setValue(WAIT_TIME_KEY, m_config.waitSeconds);
+  settings.setValue(GEOMETRY, saveGeometry());
   settings.sync();
 }
 
