@@ -21,11 +21,13 @@
 #define _ITEM_WIDGET_H_
 
 // Project
-#include <AddItemDialog.h>
+#include <Utils.h>
+#include <ConsoleOutputDialog.h>
 #include "ui_ItemWidget.h"
 
 // Qt
 #include <QWidget>
+#include <QProcess>
 
 /**
  * @brief Widget for the list widget representing an item. 
@@ -38,45 +40,107 @@ class ItemWidget
   public:
     /**
      * @brief ItemWidget class constructor. 
-     * @param item Item information struct.
+     * @brief config Application configuration struct reference. 
+     * @param item Item information struct reference.
      * @param parent Raw pointer of thw widget parent of this one. 
      * @param f Window flags.
      */
-    ItemWidget(QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+    ItemWidget(const Utils::Configuration &m_config, Utils::ItemInformation &item, QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
     /** 
      * @brief ItemWidget class virtual destructor. 
     */
     virtual ~ItemWidget();
 
+    /**
+     * @brief Returns the item information of this widget. 
+     */
+    const Utils::ItemInformation &item() const
+    { return m_item; }
+
+    /**
+     * @brief Returns true if the widget's item has been downloaded and false otherwise. 
+     */
+    bool hasFinished() const
+    { return m_finished; }
+
+    /**
+     * @brief Returns true if the process has been aborted and false otherwise.
+     */
+    bool hasAborted() const
+    { return m_aborted; }
+
+  public slots:
+    /**
+     * @brief Stops the curl process.
+     */
+    void stopProcess();
+
   signals:
     void cancelled();
     void finished();
 
-  private slots:
-    /** 
-     * @brief Cancels the thread and finishes.
-    */
-    void onCancelButtonPressed();
+  protected:
+    virtual void paintEvent(QPaintEvent *event);
 
+  private: 
+    enum class Status: char { STARTING = 0, DOWNLOADING = 1, RETRYING = 2, ERROR = 3, FINISHED = 4, ABORTED = 5 };
+
+  private slots:
     /**
      * @brief Shows the process console in a dialog.
     */
     void onNotesButtonPressed();
 
     /**
-     * @brief Updates the progress value and text in the progress bar. 
-     * @param progressValue Progress value. 
-     * @param text Progress text. 
+     * @brief Handles curl process errors. 
+     * @param error Error value. 
      */
-    void onProgressModified(const unsigned int progressValue = 0u, const QString &text = QString());
+    void onErrorOcurred(QProcess::ProcessError error);
+
+    /**
+     * @brief Handles the curl process exit status
+     * @param code curl exit code.
+     * @param status Process exit status. 
+     */
+    void onFinished(int code, QProcess::ExitStatus status);
+
+    /**
+     * @brief Handles the text produced by the curl process.
+     */
+    void onTextReady();
 
   private:
     /**
      * @brief Connects signals to slots.
     */
     void connectSignals();
-  
+
+    /**
+     * @brief Updates the progress value and text in the progress bar. 
+     * @param progressValue Progress value. 
+     */
+    void onProgressChanged(const float progressValue);
+
+    /**
+     * @brief Sets the text of the status label. 
+     * @param status Status value.
+     */
+    void setStatus(const Status status);
+
+    /**
+     * @brief Starts the curl process. 
+     */
+    void startProcess();
+
+  private:
+    Utils::ItemInformation &m_item;       /** item information. */
+    const Utils::Configuration &m_config; /** application configuration reference. */
+    bool m_finished;                      /** true if the item has been downloaded and false otherwise. */
+    bool m_aborted;                       /** true if aborted and false otherwise. */
+    float m_progressVal;                  /** progress value in [0,100] */
+    ConsoleOutputDialog m_console;        /** console text dialog. */
+    QProcess m_process;                   /** curl process. */
 };
 
 #endif

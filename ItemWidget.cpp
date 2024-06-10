@@ -20,43 +20,282 @@
 // Project
 #include <ItemWidget.h>
 
+// Qt
+#include <QPainter>
+#include <QRect>
+#include <QString>
+#include <QDir>
+#include <QMessageBox>
+
+// C++
+#include <unistd.h> // sleep
+
 //----------------------------------------------------------------------------
-ItemWidget::ItemWidget(QWidget* parent, Qt::WindowFlags f)
+ItemWidget::ItemWidget(const Utils::Configuration &config, Utils::ItemInformation &item, QWidget* parent, Qt::WindowFlags f)
 : QWidget(parent, f)
+, m_item{item}
+, m_config{config}
+, m_finished{false}
+, m_aborted{false}
+, m_progressVal{0}
+, m_console{parent}
+, m_process{this}
 {
   setupUi(this);
+  m_console.hide();
+  m_status->setTextFormat(Qt::TextFormat::RichText);
+
   connectSignals();
+
+  setToolTip(m_item.toText());
+
+  m_filename->setText("<b>" + m_item.url.fileName() + "</b>");
+  onProgressChanged(0);
+  setStatus(Status::STARTING);
+  startProcess();
 }
 
 //----------------------------------------------------------------------------
 ItemWidget::~ItemWidget()
 {
-  // Stop thread if running. 
-}
-
-//----------------------------------------------------------------------------
-void ItemWidget::onCancelButtonPressed()
-{
-  // Stop thread if running. 
+  //stopProcess();
 }
 
 //----------------------------------------------------------------------------
 void ItemWidget::onNotesButtonPressed()
 {
-  // Show thread console text. 
+  if(!m_console.isVisible())
+    m_console.show();
+  else 
+    m_console.raise();
 }
 
 //----------------------------------------------------------------------------
-void ItemWidget::onProgressModified(const unsigned int progressValue, const QString &text)
+void ItemWidget::onErrorOcurred(QProcess::ProcessError error)
 {
-  QString progressText = text + " - " + QString::number(progressValue) + "%";
-  m_progress->setValue(progressValue);
-  m_progress->setFormat(text);
+  QString errorMessage;
+  switch(error)
+  {
+    case QProcess::ProcessError::Crashed:
+      errorMessage = "process crashed!";
+      break;
+    case QProcess::ProcessError::FailedToStart:
+      errorMessage = "process failed to start!";
+      break;
+    case QProcess::ProcessError::ReadError:
+      errorMessage = "process read error!";
+      break;
+    case QProcess::ProcessError::Timedout:
+      errorMessage = "process timed out!";
+      break;
+    case QProcess::ProcessError::WriteError:
+      errorMessage = "process write error!";
+      break;
+    default:
+    case QProcess::ProcessError::UnknownError:
+      errorMessage = "process unknown error!";
+      break;
+  }
+
+  setStatus(Status::ERROR);
+  m_console.addText("<b>" + errorMessage + "</b>");
+}
+
+//----------------------------------------------------------------------------
+void ItemWidget:: onProgressChanged(const float progressValue)
+{
+  m_progressVal = progressValue;
+  m_progress->setText(QString("%1%").arg(progressValue));
+
+  update();
+}
+
+//----------------------------------------------------------------------------
+void ItemWidget::onFinished(int code , QProcess::ExitStatus status)
+{
+  QString message = "Process finished with code: " + QString::number(code) + " status ";
+  switch(status)
+  {
+    case QProcess::ExitStatus::NormalExit:
+      message += "normal exit.";
+      break;
+    case QProcess::ExitStatus::CrashExit:
+      message += "crash exit.";
+      break;
+  }
+
+  if(!m_finished && !m_aborted)
+    m_finished = (code == 0);
+
+  m_console.addText(message);
+
+  if(!m_finished && !m_aborted)
+  {
+    setStatus(Status::RETRYING);
+    m_console.addText(QString("Retrying in %1 seconds...").arg(m_config.waitSeconds));
+    sleep(m_config.waitSeconds);
+    startProcess();
+  }
+  else
+  {
+    if(m_aborted)
+    {
+      setStatus(Status::ABORTED);
+      emit cancelled();
+    }
+    else
+    {
+      setStatus(Status::FINISHED);
+      emit finished();
+    }
+  }
+}
+
+//----------------------------------------------------------------------------
+void ItemWidget::onTextReady()
+{
+  auto stderrText = QString(m_process.readAllStandardError());
+  auto stdoutText = QString(m_process.readAllStandardOutput());
+
+  auto pos = stderrText.indexOf('%');
+  if(pos != -1)
+  {
+    const QStringRef percentageStr(&stderrText, pos-5,5);
+    m_progressVal = percentageStr.toFloat();
+    onProgressChanged(m_progressVal);
+    setStatus(Status::DOWNLOADING);
+  }
+
+  if(!stderrText.isEmpty())
+    m_console.addText(stderrText + "\n");
+  if(!stdoutText.isEmpty())
+    m_console.addText(stdoutText + "\n");
 }
 
 //----------------------------------------------------------------------------
 void ItemWidget::connectSignals()
 {
-  connect(this->m_cancel, SIGNAL(pressed()), this, SLOT(onCancelButtonPressed()));
-  connect(this->m_notes, SIGNAL(pressed()), this, SLOT(onNotesButtonPressed()));
+  connect(&m_process, SIGNAL(errorOccurred(QProcess::ProcessError)), this, SLOT(onErrorOcurred(QProcess::ProcessError)), Qt::DirectConnection);
+  connect(&m_process, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(onFinished(int, QProcess::ExitStatus)), Qt::DirectConnection);
+
+  connect(&m_process, SIGNAL(readyReadStandardError()), this, SLOT(onTextReady()), Qt::DirectConnection);
+  connect(&m_process, SIGNAL(readyReadStandardOutput()), this, SLOT(onTextReady()), Qt::DirectConnection);
+  
+  connect(m_cancel, SIGNAL(pressed()), this, SLOT(stopProcess()));
+  connect(m_notes, SIGNAL(pressed()), this, SLOT(onNotesButtonPressed()));
+}
+
+//----------------------------------------------------------------------------
+void ItemWidget::setStatus(ItemWidget::Status status)
+{
+  QString statusText; 
+
+  switch(status)
+  {
+    default:
+    case Status::DOWNLOADING:
+      statusText = QString("<b>Downloading</b>");
+      break;
+    case Status::ERROR:
+      statusText = QString("<b><span style=\"color:#aa0000;\">ERROR</span></b>");
+      break;
+    case Status::RETRYING:
+      statusText = QString("<b><span style=\"color:#0000aa;\">Retrying</span></b>");
+      break;
+    case Status::STARTING:
+      statusText = QString("<b>Starting</b>");
+      break;
+    case Status::FINISHED:
+      statusText = QString("<b>Finished</b>");
+      break;
+  }
+
+  m_status->setText(statusText);
+}
+
+//----------------------------------------------------------------------------
+void ItemWidget::startProcess()
+{
+  const QStringList protocols = {"--socks4", "--socks5"};
+
+  if(m_process.state() != QProcess::ProcessState::NotRunning)
+    stopProcess();
+
+  m_process.setWorkingDirectory(m_config.downloadPath);
+  m_process.setProgram(m_config.curlPath);
+  //m_process.setProcessChannelMode(QProcess::SeparateChannels);
+  QStringList arguments;
+  arguments << "--disable"; // Disable .curlrc
+  arguments << "--create-dirs"; // Create necessary local directory hierarchy
+  arguments << "--progress-bar"; // use progress bar
+  arguments << "--connect-timeout" << "60"; // Maximum time allowed for connection
+  arguments << "--insecure"; // Allow insecure server connections when using SSL
+  arguments << "--location"; // Follow redirects
+  arguments << "--retry" << "999"; // <num> Retry request if transient problems occur
+  arguments << "--retry-connrefused"; // Retry on connection refused (use with --retry)
+  arguments << "--retry-delay" << QString::number(m_config.waitSeconds); // <seconds> Wait time between retries  
+  arguments << "--output" << m_item.url.fileName();
+  if(!m_item.server.isEmpty())
+  {
+    if(m_item.protocol != Utils::Protocol::NONE)
+    {
+      arguments << "--proxy-insecure"; // Do HTTPS proxy connections without verifying the proxy
+
+      const auto serverText = QString("%1:%2").arg(m_item.server).arg(m_item.port);
+      arguments << protocols.at(static_cast<int>(m_item.protocol)) << serverText;
+    }
+  }
+  arguments << "--url" << m_item.url.toString();
+
+  // Continue.
+  if(QDir(m_config.downloadPath).exists(m_item.url.fileName()))
+    arguments << "-C" << "-";
+
+  m_process.setArguments(arguments);
+  m_process.start();
+  m_process.setTextModeEnabled(true);  
+  m_process.waitForStarted();
+}
+
+//----------------------------------------------------------------------------
+void ItemWidget::stopProcess()
+{
+  if(!m_aborted && m_process.state() != QProcess::ProcessState::NotRunning)
+  {
+    const auto filename = m_item.url.fileName();
+    {
+      QMessageBox msgBox(this);
+      msgBox.setWindowTitle(filename);
+      msgBox.setStandardButtons(QMessageBox::Button::Yes|QMessageBox::Button::No);
+      msgBox.setText(QString("Do you want to cancel the download of '%1'?").arg(filename));
+
+      if(msgBox.exec() == QMessageBox::No)
+        return;
+    }
+
+    m_aborted = true;
+
+    m_cancel->setEnabled(false);
+
+    m_process.terminate();
+    m_process.kill();
+    m_process.waitForFinished();
+  }
+}
+
+//----------------------------------------------------------------------------
+void ItemWidget::paintEvent(QPaintEvent *event)
+{
+  const float progressXPoint = size().width() * m_progressVal/100.f;
+  auto wRect = rect();
+  wRect.setWidth(progressXPoint);
+
+  // White background.
+	QPainter painter(this);
+  painter.setPen(Qt::transparent);
+  painter.setBrush(QColor(120, 255, 120));
+  painter.drawRect(wRect);
+  painter.end();
+
+  QWidget::paintEvent(event);
 }
