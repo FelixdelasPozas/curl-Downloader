@@ -43,7 +43,11 @@
       <widget class="QLineEdit" name="m_serverIP"/>
      </item>
      <item row="2" column="2">
-      <widget class="QLineEdit" name="m_serverPort"/>
+      <widget class="QLineEdit" name="m_serverPort">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+      </widget>
      </item>
      <item row="0" column="2">
       <widget class="QLineEdit" name="m_url"/>
@@ -71,11 +75,17 @@
      </item>
      <item row="3" column="2">
       <widget class="QComboBox" name="m_protocolCombo">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="font">
         <font>
          <weight>75</weight>
          <bold>true</bold>
         </font>
+       </property>
+       <property name="currentIndex">
+        <number>2</number>
        </property>
        <property name="sizeAdjustPolicy">
         <enum>QComboBox::AdjustToMinimumContentsLength</enum>

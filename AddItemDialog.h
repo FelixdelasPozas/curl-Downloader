@@ -56,6 +56,12 @@ class AddItemDialog
 
   protected:
     void closeEvent(QCloseEvent *) override;
+
+  private slots:
+    /** 
+     * @brief Modifies en UI when the text changes. 
+     */
+    void onServerTextChanged();
 };
 
 #endif

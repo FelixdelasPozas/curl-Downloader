@@ -29,6 +29,8 @@ AddItemDialog::AddItemDialog(QWidget *parent, Qt::WindowFlags f)
 : QDialog(parent, f)
 {
   setupUi(this);
+
+  connect(m_serverIP, SIGNAL(textChanged(const QString &)), this, SLOT(onServerTextChanged()));
 }
 
 //----------------------------------------------------------------------------
@@ -63,4 +65,12 @@ void AddItemDialog::closeEvent(QCloseEvent *e)
   }
 
   accept();
+}
+
+//----------------------------------------------------------------------------
+void AddItemDialog::onServerTextChanged()
+{
+  const auto enabled = !m_serverIP->text().isEmpty();
+  m_serverPort->setEnabled(enabled);
+  m_protocolCombo->setEnabled(enabled);
 }
