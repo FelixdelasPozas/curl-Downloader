@@ -19,11 +19,14 @@
 
 // Project
 #include <Utils.h>
+#include <ItemWidget.h>
 
 // Qt
 #include <QHostAddress>
+#include <QApplication>
 #include <QProcess>
-#include <iostream>
+#include <QDir>
+
 
 //----------------------------------------------------------------------------
 bool Utils::ItemInformation::isValid() const
@@ -34,13 +37,27 @@ bool Utils::ItemInformation::isValid() const
 }
 
 //----------------------------------------------------------------------------
+QString Utils::ItemInformation::toText() const
+{
+  QString text;
+  text += QString("<b>File:</b>%1\n").arg(url.toString());
+  if(!server.isEmpty())
+    text += QString("<b>Proxy server:</b>%1:%2\n").arg(server).arg(port);
+  else
+    text += QString("<b>Proxy server:</b>None");
+
+  if(!server.isEmpty()) text += QString("<b>Protocol:</b>%1").arg(protocol == Protocol::SOCKS4 ? "SOCKS4": (protocol == Protocol::NONE) ? "None":"SOCKS5");
+
+  return text;
+}
+
+//----------------------------------------------------------------------------
 std::vector<Utils::ItemInformation>::const_iterator Utils::findItem(const QUrl &url, const std::vector<Utils::ItemInformation> &items)
 {
   auto isSameUrl = [&url](const Utils::ItemInformation &item)
   {
     return url == item.url;
   };
-
   auto it = std::find_if(items.cbegin(), items.cend(), isSameUrl);
   return it;
 }
@@ -66,3 +83,62 @@ QString Utils::curlExecutableVersion(const QString &exePath)
 
   return outputText.split(' ').at(1);
 }
+
+//----------------------------------------------------------------------------
+ItemWidget *Utils::findWidgetWithButton(const QToolButton *button, std::vector<ItemWidget *> widgets)
+{
+  for(auto w: widgets)
+  {
+    auto buttons = w->findChildren<QToolButton*>();
+    auto it = std::find_if(buttons.cbegin(), buttons.cend(), [button](const QToolButton *b){ return b == button; });
+    if(it != buttons.cend())
+      return w;
+  }
+
+  return nullptr;
+}
+
+//----------------------------------------------------------------------------
+bool Utils::Configuration::isValid() const
+{
+  QDir directory(downloadPath);
+  return !curlPath.isEmpty() && !downloadPath.isEmpty() && directory.exists() && waitSeconds >= 5;
+}
+
+//----------------------------------------------------------------------------
+void Utils::AutoCloseMessageBox::showEvent(QShowEvent *event)
+{   
+  QMessageBox::showEvent(event);
+  QApplication::beep();
+  m_text = text();
+
+  m_currentTime = 0;
+  if (m_autoClose)
+    this->startTimer(1000); // counting is done in 'timerEvent'.
+}
+
+//----------------------------------------------------------------------------
+void Utils::AutoCloseMessageBox::timerEvent(QTimerEvent *event)
+{
+  m_currentTime++; // counting.
+
+  if(m_autoClose)
+  {
+    setText(m_text + QString("\nThis dialog will close in %1 seconds.").arg(m_closeSeconds - m_currentTime));
+    if(m_currentTime >= m_closeSeconds)
+      this->done(0);
+  }
+}
+
+//----------------------------------------------------------------------------
+void Utils::AutoCloseMessageBox::setAutoClose(const bool value)
+{
+  m_autoClose = value;
+};
+
+//----------------------------------------------------------------------------
+void Utils::AutoCloseMessageBox::setCloseTime(const unsigned int seconds)
+{
+  m_closeSeconds = seconds;
+}
+

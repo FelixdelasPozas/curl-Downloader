@@ -27,6 +27,8 @@
 // Qt
 #include <QMainWindow>
 
+class ItemWidget;
+
 /**
  * @brief MainWindow class. 
  */
@@ -60,19 +62,14 @@ class MainWindow
     void addItem();
 
     /**
-     * @brief Removes currently selected items from the items list. 
-     */
-    void removeItem();
-
-    /**
      * @brief Shows the configuration dialog and stores the changes, if any.
      */
     void showConfigurationDialog();
 
     /**
-     * @brief Manages UI when a donwload finishes.
+     * @brief Manages UI when a donwload finishes or is cancelled..
      */
-    void onDownloadFinished();
+    void onProcessFinished();
 
   private:
     /**
@@ -93,6 +90,7 @@ class MainWindow
   private:
     Utils::Configuration m_config;               /** application configuration. */
     std::vector<Utils::ItemInformation> m_items; /** list of items being downloaded. */
+    std::vector<ItemWidget *> m_widgets;         /** list of item widgets. */
 };
 
 

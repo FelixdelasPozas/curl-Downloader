@@ -35,12 +35,58 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QListWidget" name="m_listWidget"/>
+     <widget class="QScrollArea" name="m_scrollArea">
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="scrollWidget">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>798</width>
+         <height>556</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="m_scrollLayout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <spacer name="m_spacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+     </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
@@ -57,10 +103,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionAdd_file_to_download"/>
-   <addaction name="actionRemove_file"/>
-   <addaction name="separator"/>
    <addaction name="actionApplication_settings"/>
-   <addaction name="separator"/>
    <addaction name="actionAbout"/>
    <addaction name="separator"/>
    <addaction name="actionExit_application"/>
@@ -75,15 +118,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
-   </property>
-  </action>
-  <action name="actionRemove_file">
-   <property name="icon">
-    <iconset resource="resources/resources.qrc">
-     <normaloff>:/Downloader/close.svg</normaloff>:/Downloader/close.svg</iconset>
-   </property>
-   <property name="text">
-    <string>Remove file</string>
    </property>
   </action>
   <action name="actionAbout">

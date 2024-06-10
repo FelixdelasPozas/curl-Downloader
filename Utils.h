@@ -26,6 +26,10 @@
 // Qt
 #include <QUrl>
 #include <QString>
+#include <QMessageBox>
+
+class ItemWidget;
+class QToolButton;
 
 namespace Utils
 {
@@ -68,13 +72,18 @@ namespace Utils
      * @brief Returns true if the information is valid and false otherwise.
      */
     bool isValid() const;
+
+    /**
+     * @brief Returns the information as a text string.
+     */
+    QString toText() const;
   };
 
   /**
    * @brief Finds and returns the item iterator that has the same url as the given one. 
    * @param url Url to find.
    * @param items List of items.
-   * @return Item iterator or cend().
+   * @return Item const_iterator or cend().
    */
   std::vector<ItemInformation>::const_iterator findItem(const QUrl &url, const std::vector<ItemInformation> &items);
 
@@ -104,10 +113,7 @@ namespace Utils
     /**
      * @brief Returns true if the information is valid and false otherwise.
      */
-    bool isValid() const
-    {
-      return !curlPath.isEmpty() && !downloadPath.isEmpty() && waitSeconds >= 5;
-    }
+    bool isValid() const;
   };
 
   /**
@@ -115,6 +121,71 @@ namespace Utils
    * @param exePath Path of the executable.
    */
   QString curlExecutableVersion(const QString &exePath);
+
+  /**
+   * @brief Returns the widget that contains the given button.
+   * @param button Button pointer to find. 
+   * @param widgets List of widgets. 
+   */
+  ItemWidget* findWidgetWithButton(const QToolButton *button, std::vector<ItemWidget *> widgets);
+
+  /** 
+   * @brief Implementation of an autoclose QMessageBox.
+   */
+  class AutoCloseMessageBox
+  : public QMessageBox
+  {
+      Q_OBJECT
+    public:
+      /**
+       * @AutoCloseMessageBox class constructor. 
+       * @param parent Raw pointer of the widget parent of this one.
+       */
+      AutoCloseMessageBox(QWidget *parent = nullptr)
+      : QMessageBox(parent)
+      {};
+
+      /**
+       * @brief AutoCloseMessageBox class constructor. 
+       * @param icon Message box icon.
+       * @param title Dialog title.
+       * @param text Dialog text.
+       * @param buttons Buttons to show. 
+       * @param parent Raw pointer of the widget parent of this one. 
+       * @param flags Dialog flags. 
+       */
+      AutoCloseMessageBox(Icon icon, const QString &title, const QString &text,
+                          StandardButtons buttons = NoButton, QWidget *parent = Q_NULLPTR,
+                          Qt::WindowFlags flags = Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint)
+      : QMessageBox(icon, title, text, buttons, parent, flags)
+      {};
+
+      virtual ~AutoCloseMessageBox()
+      {};
+
+      /**
+       * @brief Sets if the dialog must auto-close.
+       * @param value True to auto-close and false otherwise. 
+       */
+      void setAutoClose(const bool value);
+
+      /**
+       * @bried Sets the closing time.
+       * @param seconds Closing time in seconds. 
+       */
+      void setCloseTime(const unsigned int seconds);
+
+    protected:
+      void showEvent ( QShowEvent * event ) override;
+      void timerEvent( QTimerEvent *event ) override;
+
+    private:
+      QString m_text;                  /** text to show. */
+      unsigned int m_closeSeconds = 5; /** seconds to close. */
+      bool m_autoClose = true;         /** true to auto-close false to act as a regular QMessageBox. */
+      unsigned int m_currentTime = 0;  /** current time since showing the messagebox. */
+      int m_timerId = 0;               /** current timer id. */
+  };
 }
 
 #endif

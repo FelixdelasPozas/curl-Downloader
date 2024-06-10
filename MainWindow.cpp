@@ -25,12 +25,12 @@
 #include <ItemWidget.h>
 
 // Qt
-#include <QListWidgetItem>
 #include <QMessageBox>
 #include <QSettings>
 
 // C++ 
 #include <cassert>
+#include <exception>
 
 const QString CURL_LOCATION_KEY = "Curl executable location";
 const QString DOWNLOAD_FOLDER_KEY = "Download folder";
@@ -46,9 +46,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
 
   loadSettings();
 
-  const auto valid = m_config.isValid();
-  this->actionAdd_file_to_download->setEnabled(valid);
-  this->actionRemove_file->setEnabled(valid);
+  this->actionAdd_file_to_download->setEnabled(m_config.isValid());
 }
 
 //----------------------------------------------------------------------------
@@ -64,14 +62,15 @@ MainWindow::~MainWindow()
       return;    
   }
 
-  for(int i = 0; i < m_listWidget->count(); ++i)
+  for(size_t i = 0; i < m_items.size(); ++i)
   {
-    auto widget = qobject_cast<ItemWidget *>(m_listWidget->itemWidget(m_listWidget->item(i)));
-    if(widget)
-      widget->stop();
+    disconnect(m_widgets[i]);
+    m_widgets[i]->stopProcess();
+    m_scrollLayout->removeWidget(m_widgets[i]);
+    delete m_widgets[i];
   }
 
-  m_listWidget->clear();
+  m_widgets.clear();
   m_items.clear();
 
   saveSettings();
@@ -92,7 +91,7 @@ void MainWindow::addItem()
 
   if(value == QDialog::Rejected) return;
 
-  const auto item = dialog.getItem();
+  auto item = dialog.getItem();
 
   if(Utils::findItem(item.url, m_items) != m_items.cend())
   {
@@ -105,72 +104,31 @@ void MainWindow::addItem()
   }
   
   m_items.push_back(item);
+  
+  auto itemWidget = new ItemWidget(m_config, m_items.back());
+  m_widgets.push_back(itemWidget);
 
-  auto listItem = new QListWidgetItem(item.url.toString());
-  auto itemWidget =  new ItemWidget(m_config, item, m_listWidget);
-  listItem->setSizeHint(itemWidget->sizeHint());
+  connect(itemWidget, SIGNAL(cancelled()), this, SLOT(onProcessFinished()));
+  connect(itemWidget, SIGNAL(finished()), this, SLOT(onProcessFinished()));
 
-  connect(itemWidget, SIGNAL(cancelled()), this, SLOT(removeItem()));
-  connect(itemWidget, SIGNAL(finished()), this, SLOT(onDownloadFinished()));
-
-  m_listWidget->addItem(listItem);
-  m_listWidget->setItemWidget(listItem,itemWidget);
-}
-
-//----------------------------------------------------------------------------
-void MainWindow::removeItem()
-{
-  ItemWidget *widget = nullptr;
-  auto button = qobject_cast<QToolButton*>(sender());
-  if(button)
-  {
-    const auto row = m_listWidget->currentRow();
-    assert(row < static_cast<int>(m_items.size()));
-    const auto listItem = m_listWidget->item(row);
-    widget = qobject_cast<ItemWidget *>(m_listWidget->itemWidget(listItem));
-  }
-
-  if(!widget)
-    widget = qobject_cast<ItemWidget*>(sender());
-
-  if(widget)
-  {
-    const auto item(widget->item());
-
-    if(!widget->hasFinished())
-    {
-      QMessageBox msgBox(this);
-      msgBox.setWindowTitle("Item information");
-      msgBox.setStandardButtons(QMessageBox::Button::Yes|QMessageBox::Button::No);
-      msgBox.setText(QString("The url '%1' is being downloaded and hasn't finished!\nDo you really want to cancel it?").arg(item.url.fileName()));
-      if(QMessageBox::Yes != msgBox.exec())
-        return;
-    }
-
-    m_listWidget->removeItemWidget(m_listWidget->findItems(item.url.toString(), Qt::MatchFlag::MatchExactly).front());
-    auto itemIt = Utils::findItem(item.url, m_items);
-    m_items.erase(itemIt);
-    return;
-  }
-
-  throw std::runtime_error("Unable to identify removeItem sender!");
+  m_scrollLayout->insertWidget(m_scrollLayout->count()-1, itemWidget);
 }
 
 //----------------------------------------------------------------------------
 void MainWindow::showConfigurationDialog()
 {
   ConfigurationDialog dialog(this);
+  dialog.setConfiguration(m_config);
 
   if(dialog.exec() == QDialog::Accepted)
   {
     m_config = dialog.getConfiguration();
     this->actionAdd_file_to_download->setEnabled(true);
-    this->actionRemove_file->setEnabled(true);
   }
 }
 
 //----------------------------------------------------------------------------
-void MainWindow::onDownloadFinished()
+void MainWindow::onProcessFinished()
 {
   const auto widget = qobject_cast<ItemWidget*>(sender());
 
@@ -178,19 +136,29 @@ void MainWindow::onDownloadFinished()
   {
     const auto item(widget->item());
 
-    QMessageBox msgBox(this);
+    Utils::AutoCloseMessageBox msgBox(this);
     msgBox.setWindowTitle("Item information");
     msgBox.setStandardButtons(QMessageBox::Button::Ok);
-    msgBox.setText(QString("The url '%1' has finished downloading!").arg(item.url.fileName()));
+
+    if(widget->hasFinished())
+      msgBox.setText(QString("The url '%1' has finished downloading!").arg(item.url.fileName()));
+    else
+      msgBox.setText(QString("The url '%1' has been aborted!").arg(item.url.fileName()));
+
     msgBox.exec();
 
-    m_listWidget->removeItemWidget(m_listWidget->findItems(item.url.toString(), Qt::MatchFlag::MatchExactly).front());
-    auto itemIt = Utils::findItem(item.url, m_items);
-    m_items.erase(itemIt);
-    return;
-  }
+    m_scrollLayout->removeWidget(widget);
 
-  throw std::runtime_error("Unable to identify removeItem sender!");
+    auto itemIt = Utils::findItem(item.url, m_items);
+    auto widgetIt = m_widgets.begin() + std::distance(m_items.cbegin(), itemIt);
+    m_widgets.erase(widgetIt);
+    m_items.erase(itemIt);
+    delete widget;
+  }
+  else
+  {
+    throw std::runtime_error("Unable to identify removeItem sender!");
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -199,7 +167,6 @@ void MainWindow::connectSignals()
   connect(this->actionAbout, SIGNAL(triggered(bool)), this, SLOT(showAboutDialog()));
   connect(this->actionExit_application, SIGNAL(triggered(bool)), this, SLOT(close()));
   connect(this->actionAdd_file_to_download, SIGNAL(triggered(bool)), this, SLOT(addItem()));
-  connect(this->actionRemove_file, SIGNAL(triggered(bool)), this, SLOT(removeItem()));
   connect(this->actionApplication_settings, SIGNAL(triggered(bool)), this, SLOT(showConfigurationDialog()));
 }
 
@@ -213,6 +180,7 @@ void MainWindow::loadSettings()
   auto waitTime = settings.value(WAIT_TIME_KEY, 5).toUInt();
 
   Utils::Configuration config(curlLocation, downloadFolder, waitTime);
+
   if(!config.isValid())
     showConfigurationDialog();
   else
