@@ -85,7 +85,7 @@ MainWindow::~MainWindow()
 //----------------------------------------------------------------------------
 void MainWindow::showAboutDialog()
 {
-  AboutDialog dialog(this);
+  AboutDialog dialog(m_config, this);
   dialog.exec();
 }
 
@@ -120,7 +120,7 @@ void MainWindow::addItem()
   connect(itemWidget, SIGNAL(finished()), this, SLOT(onProcessFinished()));
 
   m_scrollLayout->insertWidget(m_scrollLayout->count()-1, itemWidget);
-  m_trayIcon->setToolTip(QString("Downloading %1 files.").arg(m_items.size()));
+  m_trayIcon->setToolTip(QString("Downloading %1 file%2.").arg(m_items.size()).arg(m_items.size() > 1 ? "s":""));
 }
 
 //----------------------------------------------------------------------------
@@ -171,7 +171,7 @@ void MainWindow::onProcessFinished()
     widget->deleteLater();
     delete item;
 
-    const QString trayMessage = !m_items.empty() ? QString("Downloading %1 files.").arg(m_items.size()) : QString("No downloads.");
+    const QString trayMessage = !m_items.empty() ? QString("Downloading %1 file%2.").arg(m_items.size()).arg(m_items.size() > 1 ? "s":"") : QString("No downloads.");
     m_trayIcon->setToolTip(trayMessage);
   }
   else
