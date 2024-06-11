@@ -53,7 +53,7 @@ ItemWidget::ItemWidget(const Utils::Configuration &config, Utils::ItemInformatio
   setToolTip(m_item->toText());
 
   m_filename->setText("<p style='white-space:pre'><b>" + m_item->url.fileName() + "</b>");
-  updateWidget(0, "??", "??:??:??");
+  updateWidget(0, "??", "--:--:--");
   setStatus(Status::STARTING);
   startProcess();
 }
@@ -117,7 +117,7 @@ void ItemWidget::onErrorOcurred(QProcess::ProcessError error)
 void ItemWidget:: updateWidget(const unsigned int progressValue, const QString &speed, const QString &timeRemain)
 {
   m_progressVal = progressValue;
-  m_progress->setText(QString("%1%").arg(progressValue));
+  m_progress->setText(QString("%1%").arg(m_progressVal));
   m_speed->setText(speed.isEmpty() ? "??":speed);
   m_remain->setText(timeRemain.isEmpty() ? "--:--:--": timeRemain);
 
@@ -183,10 +183,10 @@ void ItemWidget::onTextReady()
     auto parts = text.split(' ');
     parts.removeAll("");
     parts.removeAll(" ");
-    bool isValid = false;
     if(parts.size() < 1) continue;
+    bool isValid = false;
     percentage = parts.front().toUInt(&isValid);
-    if(!isValid || parts.size() < 12) continue;
+    if(!isValid || percentage > 100 || parts.size() != 12) continue;
     remain = parts[10];
     speed = parts[11].replace("\n","");
     break;
@@ -194,16 +194,6 @@ void ItemWidget::onTextReady()
 
   updateWidget(percentage, speed, remain);
   setStatus(Status::DOWNLOADING);
-
-  // Use with progress bar mode --------
-  // auto pos = stderrText.indexOf('%');
-  // if(pos != -1)
-  // {
-  //   const QStringRef percentageStr(&stderrText, pos-5,5);
-  //   m_progressVal = percentageStr.toFloat();
-  //   onProgressChanged(m_progressVal);
-  //   setStatus(Status::DOWNLOADING);
-  // }
 
   if(!stderrText.isEmpty())
     m_console.addText(stderrText + "\n");
@@ -284,11 +274,11 @@ void ItemWidget::startProcess()
       arguments << protocols.at(static_cast<int>(m_item->protocol)) << serverText;
     }
   }
-  arguments << "--url" << m_item->url.toString();
-
-  // Continue.
+  // Continue if possible
   if(QDir(m_config.downloadPath).exists(m_item->url.fileName()))
-    arguments << "-C" << "-";
+    arguments << "--continue-at" << "-";
+
+  arguments << "--url" << m_item->url.toString();
 
   m_process.setArguments(arguments);
   m_process.start();
@@ -347,13 +337,12 @@ void ItemWidget::mousePressEvent(QMouseEvent *)
     m_addItem = new AddItemDialog(this);
     m_addItem->setItem(m_item);
     m_addItem->setWindowTitle("Modify item server and port");
-    m_addItem->m_url->setEnabled(false);
+    m_addItem->m_url->setReadOnly(true);
   }
 
   if(m_addItem->exec() == QDialog::Accepted)
   {
     const auto item = m_addItem->getItem();
-    m_item->url = item->url;
     m_item->port = item->port;
     m_item->protocol = item->protocol;
     m_item->server = item->server;
