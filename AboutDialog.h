@@ -26,6 +26,11 @@
 // Qt
 #include <QDialog>
 
+namespace Utils
+{
+  struct Configuration;
+}
+
 /** \class AboutDialog
  * \brief Egocentrical dialog with version and date of build.
  *
@@ -41,7 +46,7 @@ class AboutDialog
      * \param[in] flags window flags.
      *
      */
-    AboutDialog(QWidget *parent = nullptr, Qt::WindowFlags flags = 0);
+    AboutDialog(const Utils::Configuration &config, QWidget *parent = nullptr, Qt::WindowFlags flags = 0);
 
     /** \brief AboutDialog class virtual destructor.
      *

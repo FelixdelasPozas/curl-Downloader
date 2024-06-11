@@ -15,5 +15,6 @@
 	<file>folder.svg</file>
 	<file>info.svg</file>
 	<file>settings.svg</file>
+	<file>curl-symbol.png</file>
   </qresource>
 </RCC>

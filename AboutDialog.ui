@@ -223,6 +223,9 @@ QGroupBox::title {
             <property name="scaledContents">
              <bool>true</bool>
             </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
            </widget>
           </item>
           <item>
@@ -297,6 +300,15 @@ Qt Framework</string>
             <property name="text">
              <string/>
             </property>
+            <property name="pixmap">
+             <pixmap resource="resources/resources.qrc">:/Downloader/curl-symbol.png</pixmap>
+            </property>
+            <property name="scaledContents">
+             <bool>true</bool>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
            </widget>
           </item>
           <item>
@@ -318,7 +330,7 @@ Qt Framework</string>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_11">
+             <widget class="QLabel" name="m_curlVersion">
               <property name="text">
                <string>version 8.8.0</string>
               </property>

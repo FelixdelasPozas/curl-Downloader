@@ -18,12 +18,13 @@
  */
 
 // Project
-#include "AboutDialog.h"
+#include <AboutDialog.h>
+#include <Utils.h>
 
 const QString AboutDialog::VERSION = QString("version 1.0.0");
 
 //-----------------------------------------------------------------
-AboutDialog::AboutDialog(QWidget *parent, Qt::WindowFlags flags)
+AboutDialog::AboutDialog(const Utils::Configuration &config, QWidget *parent, Qt::WindowFlags flags)
 : QDialog(parent, flags)
 {
   setupUi(this);
@@ -35,4 +36,8 @@ AboutDialog::AboutDialog(QWidget *parent, Qt::WindowFlags flags)
 
   m_compilationDate->setText(tr("Compiled on ") + compilation_date + compilation_time);
   m_version->setText(VERSION);
+
+  auto curlVersion = Utils::curlExecutableVersion(config.curlPath);
+  if(curlVersion.isEmpty()) curlVersion = "Unknown";
+  m_curlVersion->setText(tr("version %1").arg(curlVersion));
 }
