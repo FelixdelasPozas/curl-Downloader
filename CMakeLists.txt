@@ -71,6 +71,6 @@ set (EXTERNAL_LIBRARIES
 	Qt5::WinExtras
 )
   
-add_executable(Downloader WIN32 ${SOURCE_FILES})
-target_link_libraries (Downloader ${EXTERNAL_LIBRARIES})
-qt5_use_modules(Downloader Core Gui Widgets Multimedia WinExtras)
+add_executable(curlDownloader WIN32 ${SOURCE_FILES})
+target_link_libraries (curlDownloader ${EXTERNAL_LIBRARIES})
+qt5_use_modules(curlDownloader Core Gui Widgets Multimedia WinExtras)
