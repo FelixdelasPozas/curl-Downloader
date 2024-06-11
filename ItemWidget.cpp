@@ -45,6 +45,7 @@ ItemWidget::ItemWidget(const Utils::Configuration &config, Utils::ItemInformatio
 {
   setupUi(this);
   m_console.hide();
+  m_console.setWindowTitle(tr("%1 process console output.").arg(m_item->url.fileName()));
   m_status->setTextFormat(Qt::TextFormat::RichText);
 
   connectSignals();
@@ -52,7 +53,7 @@ ItemWidget::ItemWidget(const Utils::Configuration &config, Utils::ItemInformatio
   setToolTip(m_item->toText());
 
   m_filename->setText("<p style='white-space:pre'><b>" + m_item->url.fileName() + "</b>");
-  onProgressChanged(0);
+  updateWidget(0, "??", "??:??:??");
   setStatus(Status::STARTING);
   startProcess();
 }
@@ -113,10 +114,12 @@ void ItemWidget::onErrorOcurred(QProcess::ProcessError error)
 }
 
 //----------------------------------------------------------------------------
-void ItemWidget:: onProgressChanged(const float progressValue)
+void ItemWidget:: updateWidget(const unsigned int progressValue, const QString &speed, const QString &timeRemain)
 {
   m_progressVal = progressValue;
   m_progress->setText(QString("%1%").arg(progressValue));
+  m_speed->setText(speed.isEmpty() ? "??":speed);
+  m_remain->setText(timeRemain.isEmpty() ? "--:--:--": timeRemain);
 
   update();
 }
@@ -169,17 +172,38 @@ void ItemWidget::onFinished(int code , QProcess::ExitStatus status)
 //----------------------------------------------------------------------------
 void ItemWidget::onTextReady()
 {
-  auto stderrText = QString(m_process.readAllStandardError());
-  auto stdoutText = QString(m_process.readAllStandardOutput());
+  const auto stderrText = QString(m_process.readAllStandardError());
+  const auto stdoutText = QString(m_process.readAllStandardOutput());
+  unsigned int percentage = 0;
+  QString speed, remain;
 
-  auto pos = stderrText.indexOf('%');
-  if(pos != -1)
+  for(auto text: {stderrText, stdoutText})
   {
-    const QStringRef percentageStr(&stderrText, pos-5,5);
-    m_progressVal = percentageStr.toFloat();
-    onProgressChanged(m_progressVal);
-    setStatus(Status::DOWNLOADING);
+    if(text.isEmpty()) continue;
+    auto parts = text.split(' ');
+    parts.removeAll("");
+    parts.removeAll(" ");
+    bool isValid = false;
+    if(parts.size() < 1) continue;
+    percentage = parts.front().toUInt(&isValid);
+    if(!isValid || parts.size() < 12) continue;
+    remain = parts[10];
+    speed = parts[11].replace("\n","");
+    break;
   }
+
+  updateWidget(percentage, speed, remain);
+  setStatus(Status::DOWNLOADING);
+
+  // Use with progress bar mode --------
+  // auto pos = stderrText.indexOf('%');
+  // if(pos != -1)
+  // {
+  //   const QStringRef percentageStr(&stderrText, pos-5,5);
+  //   m_progressVal = percentageStr.toFloat();
+  //   onProgressChanged(m_progressVal);
+  //   setStatus(Status::DOWNLOADING);
+  // }
 
   if(!stderrText.isEmpty())
     m_console.addText(stderrText + "\n");
@@ -242,7 +266,7 @@ void ItemWidget::startProcess()
   QStringList arguments;
   arguments << "--disable"; // Disable .curlrc
   arguments << "--create-dirs"; // Create necessary local directory hierarchy
-  arguments << "--progress-bar"; // use progress bar
+//  arguments << "--progress-bar"; // use progress bar
   arguments << "--connect-timeout" << "60"; // Maximum time allowed for connection
   arguments << "--insecure"; // Allow insecure server connections when using SSL
   arguments << "--location"; // Follow redirects

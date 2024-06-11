@@ -123,7 +123,7 @@ class ItemWidget
      * @brief Updates the progress value and text in the progress bar. 
      * @param progressValue Progress value. 
      */
-    void onProgressChanged(const float progressValue);
+    void updateWidget(const unsigned int progressValue, const QString &speed, const QString &timeRemain);
 
     /**
      * @brief Sets the text of the status label. 
