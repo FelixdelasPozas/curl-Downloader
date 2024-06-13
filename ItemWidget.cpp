@@ -343,9 +343,17 @@ void ItemWidget::mousePressEvent(QMouseEvent *)
   if(m_addItem->exec() == QDialog::Accepted)
   {
     const auto item = m_addItem->getItem();
-    m_item->port = item->port;
-    m_item->protocol = item->protocol;
-    m_item->server = item->server;
+    if(item->server != m_item->server)
+    {
+      m_item->port = item->port;
+      m_item->protocol = item->protocol;
+      m_item->server = item->server;
+
+      // force process restart.
+      m_process.terminate();
+      m_process.kill();
+      m_process.waitForFinished();
+    }
     delete item;
   }
 }
