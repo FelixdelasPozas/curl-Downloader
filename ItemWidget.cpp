@@ -27,9 +27,13 @@
 #include <QString>
 #include <QDir>
 #include <QMessageBox>
+#include <QFile>
+#include <QFontDatabase>
 
 // C++
 #include <unistd.h> // sleep
+
+int ItemWidget::FONT_ID = -1;
 
 //----------------------------------------------------------------------------
 ItemWidget::ItemWidget(const Utils::Configuration &config, Utils::ItemInformation *item, QWidget* parent, Qt::WindowFlags f)
@@ -44,6 +48,9 @@ ItemWidget::ItemWidget(const Utils::Configuration &config, Utils::ItemInformatio
 , m_addItem{nullptr}
 {
   setupUi(this);
+  if(loadFont())
+    applyFont();
+
   m_console.hide();
   m_console.setWindowTitle(tr("%1 process console output.").arg(m_item->url.fileName()));
   m_status->setTextFormat(Qt::TextFormat::RichText);
@@ -174,8 +181,6 @@ void ItemWidget::onTextReady()
 {
   const auto stderrText = QString(m_process.readAllStandardError());
   const auto stdoutText = QString(m_process.readAllStandardOutput());
-  unsigned int percentage = 0;
-  QString speed, remain;
 
   for(auto text: {stderrText, stdoutText})
   {
@@ -185,20 +190,14 @@ void ItemWidget::onTextReady()
     parts.removeAll(" ");
     if(parts.size() < 1) continue;
     bool isValid = false;
-    percentage = parts.front().toUInt(&isValid);
+    const auto percentage = parts.front().toUInt(&isValid);
     if(!isValid || percentage > 100 || parts.size() != 12) continue;
-    remain = parts[10];
-    speed = parts[11].replace("\n","");
+
+    updateWidget(percentage, parts[11], parts[10]);  
+    setStatus(Status::DOWNLOADING);
+    m_console.addText(text + "\n");
     break;
   }
-
-  updateWidget(percentage, speed, remain);
-  setStatus(Status::DOWNLOADING);
-
-  if(!stderrText.isEmpty())
-    m_console.addText(stderrText + "\n");
-  if(!stdoutText.isEmpty())
-    m_console.addText(stdoutText + "\n");
 }
 
 //----------------------------------------------------------------------------
@@ -252,11 +251,10 @@ void ItemWidget::startProcess()
 
   m_process.setWorkingDirectory(m_config.downloadPath);
   m_process.setProgram(m_config.curlPath);
-  //m_process.setProcessChannelMode(QProcess::SeparateChannels);
+  
   QStringList arguments;
   arguments << "--disable"; // Disable .curlrc
   arguments << "--create-dirs"; // Create necessary local directory hierarchy
-//  arguments << "--progress-bar"; // use progress bar
   arguments << "--connect-timeout" << "60"; // Maximum time allowed for connection
   arguments << "--insecure"; // Allow insecure server connections when using SSL
   arguments << "--location"; // Follow redirects
@@ -356,4 +354,39 @@ void ItemWidget::mousePressEvent(QMouseEvent *)
     }
     delete item;
   }
+}
+
+//----------------------------------------------------------------------------
+bool ItemWidget::loadFont()
+{
+  if(FONT_ID == -1)
+  {
+    QFile file(":/Downloader/Ubuntu-R.ttf");
+    if(file.exists() && file.open(QIODevice::ReadOnly))
+      FONT_ID = QFontDatabase::addApplicationFontFromData(file.readAll());
+  }
+
+  return FONT_ID != -1;
+}
+
+//----------------------------------------------------------------------------
+void ItemWidget::applyFont()
+{
+  if(FONT_ID != -1)
+  {
+    const QString family = QFontDatabase::applicationFontFamilies(FONT_ID).at(0);   
+    QFont font(family);
+
+    for(auto w: {m_filename, m_remain, m_status, m_speed, m_progress })
+    {
+      auto wFont = w->font();
+      font.setPointSize(wFont.pointSize());
+      font.setBold(wFont.bold());
+      w->setFont(font);
+    }
+
+    font.setBold(true);
+    font.setPointSize(10);
+    m_console.setFont(font);
+  }  
 }

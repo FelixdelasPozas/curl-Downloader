@@ -42,3 +42,13 @@ void ConsoleOutputDialog::addText(const QString &text)
   m_console->insertPlainText(text);
   m_console->moveCursor(QTextCursor::MoveOperation::End);  
 }
+
+//----------------------------------------------------------------------------
+void ConsoleOutputDialog::setFont(const QFont &font)
+{
+  auto consoleFont = font;
+  consoleFont.setBold(false);
+  consoleFont.setPointSize(11);
+  m_console->setFont(consoleFont);
+}
+

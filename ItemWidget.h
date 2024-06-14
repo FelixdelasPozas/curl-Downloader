@@ -40,6 +40,8 @@ class ItemWidget
 {
     Q_OBJECT
   public:
+    static int FONT_ID; // id of font loaded from resource file.
+
     /**
      * @brief ItemWidget class constructor. 
      * @brief config Application configuration struct reference. 
@@ -135,6 +137,16 @@ class ItemWidget
      * @brief Starts the curl process. 
      */
     void startProcess();
+
+    /** 
+     * @brief Loads the font from the resources file.
+     */
+    bool loadFont();
+
+    /**
+     * @brief Applies the loaded font to the widget.
+     */
+    void applyFont();
 
   private:
     Utils::ItemInformation *m_item;       /** item information. */

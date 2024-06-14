@@ -44,6 +44,12 @@ class ConsoleOutputDialog
     virtual ~ConsoleOutputDialog()
     {};
 
+    /** 
+     * @brief Sets the font for the "console".
+     * @param font QFont reference.
+     */
+    void setFont(const QFont &font);
+
   public slots:
     /**
      * @brief Adds the given text to the console dialog. 
