@@ -40,17 +40,37 @@
       </widget>
      </item>
      <item row="1" column="2">
-      <widget class="QLineEdit" name="m_serverIP"/>
+      <widget class="QLineEdit" name="m_serverIP">
+       <property name="toolTip">
+        <string>Proxy server IP or name to use.</string>
+       </property>
+       <property name="placeholderText">
+        <string>Enter the IP or name of the proxy server.</string>
+       </property>
+      </widget>
      </item>
      <item row="2" column="2">
       <widget class="QLineEdit" name="m_serverPort">
        <property name="enabled">
         <bool>false</bool>
        </property>
+       <property name="toolTip">
+        <string>Port of the proxy server.</string>
+       </property>
+       <property name="placeholderText">
+        <string>Enter the port of the proxy server.</string>
+       </property>
       </widget>
      </item>
      <item row="0" column="2">
-      <widget class="QLineEdit" name="m_url"/>
+      <widget class="QLineEdit" name="m_url">
+       <property name="toolTip">
+        <string>Url to download.</string>
+       </property>
+       <property name="placeholderText">
+        <string>Enter the url to download.</string>
+       </property>
+      </widget>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="label_2">
@@ -83,6 +103,9 @@
          <weight>75</weight>
          <bold>true</bold>
         </font>
+       </property>
+       <property name="toolTip">
+        <string>Protocol to use.</string>
        </property>
        <property name="currentIndex">
         <number>2</number>

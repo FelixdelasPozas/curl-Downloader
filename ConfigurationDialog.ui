@@ -37,6 +37,9 @@
        <property name="toolTip">
         <string>Location of the curl binary</string>
        </property>
+       <property name="placeholderText">
+        <string>Enter location of the curl executable.</string>
+       </property>
       </widget>
      </item>
      <item row="1" column="0">
@@ -90,10 +93,16 @@
        <property name="toolTip">
         <string>Location to store downloaded files.</string>
        </property>
+       <property name="placeholderText">
+        <string>Enter location of the downloads folder.</string>
+       </property>
       </widget>
      </item>
      <item row="0" column="2">
       <widget class="QPushButton" name="m_curlButton">
+       <property name="toolTip">
+        <string>Select the curl executable.</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -105,6 +114,9 @@
      </item>
      <item row="1" column="2">
       <widget class="QPushButton" name="m_downloadsButton">
+       <property name="toolTip">
+        <string>Select the download folder.</string>
+       </property>
        <property name="text">
         <string/>
        </property>

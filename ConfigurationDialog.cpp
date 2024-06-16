@@ -43,12 +43,9 @@ Utils::Configuration ConfigurationDialog::getConfiguration() const
 //----------------------------------------------------------------------------
 void ConfigurationDialog::setConfiguration(const Utils::Configuration &config)
 {
-  if(config.isValid())
-  {
-    m_curlLocation->setText(config.curlPath);
-    m_DownloadFolder->setText(config.downloadPath);
-    m_waitSpinbox->setValue(config.waitSeconds);
-  }
+  if(!Utils::curlExecutableVersion(config.curlPath).isEmpty()) m_curlLocation->setText(config.curlPath);
+  if(QDir(config.downloadPath).exists()) m_DownloadFolder->setText(config.downloadPath);
+  if(config.waitSeconds >= 5) m_waitSpinbox->setValue(config.waitSeconds);
 }
 
 //----------------------------------------------------------------------------
@@ -117,6 +114,11 @@ void ConfigurationDialog::closeEvent(QCloseEvent *e)
     msgBox.setStandardButtons(QMessageBox::Button::Ok);
     msgBox.setText("The configuration data is not valid.");
     msgBox.exec();
+
+    if(Utils::curlExecutableVersion(config.curlPath).isEmpty()) m_curlLocation->clear();
+    if(!QDir(config.downloadPath).exists()) m_DownloadFolder->clear();
+    if(config.waitSeconds < 5) m_waitSpinbox->setValue(5);
+
     return;
   }
 
