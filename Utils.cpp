@@ -102,7 +102,7 @@ ItemWidget *Utils::findWidgetWithButton(const QToolButton *button, std::vector<I
 bool Utils::Configuration::isValid() const
 {
   QDir directory(downloadPath);
-  return !curlPath.isEmpty() && !downloadPath.isEmpty() && directory.exists() && waitSeconds >= 5;
+  return !curlPath.isEmpty() && !downloadPath.isEmpty() && directory.exists() && waitSeconds >= 5 && !curlExecutableVersion(curlPath).isEmpty();
 }
 
 //----------------------------------------------------------------------------

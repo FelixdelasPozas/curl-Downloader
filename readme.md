@@ -45,7 +45,7 @@ The application can be minimized to the tray area.
 
 # Repository information
 
-**Version**: 1.0.0
+**Version**: 1.0.1
 
 **Status**: finished
 
