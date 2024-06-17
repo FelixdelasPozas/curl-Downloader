@@ -95,6 +95,7 @@ namespace Utils
     QString curlPath;         /** path to curl executable. */
     QString downloadPath;     /** path to download folder. */
     unsigned int waitSeconds; /** seconds to wait between retries. */
+    QString extension;        /** extensio to use when downloading. */
 
     /**
      * @brief Configuration struct constructor.
@@ -102,8 +103,8 @@ namespace Utils
      * @param dPath Path to download folder.
      * @param waitTime Time to wait between retries.
      */
-    Configuration(const QString &wPath, const QString &dPath, const unsigned int waitTime)
-    : curlPath{wPath}, downloadPath{dPath}, waitSeconds{waitTime} {};
+    Configuration(const QString &wPath, const QString &dPath, const unsigned int waitTime, const QString &tempExtension)
+    : curlPath{wPath}, downloadPath{dPath}, waitSeconds{waitTime}, extension{tempExtension} {};
 
     /**
      * @brief Configuration struct empty constructor.

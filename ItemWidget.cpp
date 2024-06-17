@@ -42,6 +42,7 @@ ItemWidget::ItemWidget(const Utils::Configuration &config, Utils::ItemInformatio
 , m_config{config}
 , m_finished{false}
 , m_aborted{false}
+, m_paused{false}
 , m_progressVal{0}
 , m_console{parent}
 , m_process{this}
@@ -87,6 +88,25 @@ void ItemWidget::onNotesButtonPressed()
     m_console.show();
   else 
     m_console.raise();
+}
+
+//----------------------------------------------------------------------------
+void ItemWidget::onPlayButtonPressed()
+{
+  m_paused = (m_process.state() == QProcess::ProcessState::Running);
+
+  if(m_paused)
+  {
+    stopProcessImplementation();
+    m_playPause->setIcon(QIcon(":/Downloader/play.svg"));
+    setStatus(Status::PAUSED);
+  }
+  else
+  {
+    startProcess();
+    m_playPause->setIcon(QIcon(":/Downloader/pause.svg"));
+    setStatus(Status::STARTING);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -147,6 +167,9 @@ void ItemWidget::onFinished(int code , QProcess::ExitStatus status)
 
   m_console.addText("\n" + message + "\n");
   m_console.addText(message);
+
+  if(m_paused)
+    return;
 
   if(!m_finished && !m_aborted)
     m_finished = (code == 0);
@@ -211,6 +234,7 @@ void ItemWidget::connectSignals()
   
   connect(m_cancel, SIGNAL(pressed()), this, SLOT(stopProcess()));
   connect(m_notes, SIGNAL(pressed()), this, SLOT(onNotesButtonPressed()));
+  connect(m_playPause, SIGNAL(pressed()), this, SLOT(onPlayButtonPressed()));
 }
 
 //----------------------------------------------------------------------------
@@ -235,6 +259,9 @@ void ItemWidget::setStatus(ItemWidget::Status status)
       break;
     case Status::FINISHED:
       statusText = QString("<b>Finished</b>");
+      break;
+    case Status::PAUSED:
+      statusText = QString("<b>Paused</b>");
       break;
   }
 
@@ -261,7 +288,7 @@ void ItemWidget::startProcess()
   arguments << "--retry" << "999"; // <num> Retry request if transient problems occur
   arguments << "--retry-connrefused"; // Retry on connection refused (use with --retry)
   arguments << "--retry-delay" << QString::number(m_config.waitSeconds); // <seconds> Wait time between retries  
-  arguments << "--output" << m_item->url.fileName();
+  arguments << "--output" << m_item->url.fileName() + m_config.extension; // with temporal extension, if any.
   if(!m_item->server.isEmpty())
   {
     if(m_item->protocol != Utils::Protocol::NONE)
@@ -272,8 +299,9 @@ void ItemWidget::startProcess()
       arguments << protocols.at(static_cast<int>(m_item->protocol)) << serverText;
     }
   }
+
   // Continue if possible
-  if(QDir(m_config.downloadPath).exists(m_item->url.fileName()))
+  if(QDir(m_config.downloadPath).exists(m_item->url.fileName() + m_config.extension))
     arguments << "--continue-at" << "-";
 
   arguments << "--url" << m_item->url.toString();
@@ -287,7 +315,7 @@ void ItemWidget::startProcess()
 //----------------------------------------------------------------------------
 void ItemWidget::stopProcess()
 {
-  if(!m_aborted && m_process.state() != QProcess::ProcessState::NotRunning)
+  if(!m_aborted)
   {
     const auto filename = m_item->url.fileName();
     {
@@ -300,13 +328,19 @@ void ItemWidget::stopProcess()
         return;
     }
 
-    m_aborted = true;
-
     m_cancel->setEnabled(false);
+    m_playPause->setEnabled(false);
 
-    m_process.terminate();
-    m_process.kill();
-    m_process.waitForFinished();
+    m_aborted = true;
+    if(m_paused)
+    {
+      m_paused = false;
+      onFinished(0, QProcess::ExitStatus::NormalExit);
+    }
+    else
+    {
+      stopProcessImplementation();
+    }
   }
 }
 
@@ -389,4 +423,15 @@ void ItemWidget::applyFont()
     font.setPointSize(10);
     m_console.setFont(font);
   }  
+}
+
+//----------------------------------------------------------------------------
+void ItemWidget::stopProcessImplementation()
+{
+  if(m_process.state() != QProcess::ProcessState::NotRunning)
+  {
+    m_process.terminate();
+    m_process.kill();
+    m_process.waitForFinished();
+  }
 }

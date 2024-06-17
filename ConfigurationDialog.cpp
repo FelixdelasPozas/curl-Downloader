@@ -37,7 +37,7 @@ ConfigurationDialog::ConfigurationDialog(QWidget *parent, Qt::WindowFlags f)
 //----------------------------------------------------------------------------
 Utils::Configuration ConfigurationDialog::getConfiguration() const
 {
-  return Utils::Configuration(m_curlLocation->text(), m_DownloadFolder->text(), m_waitSpinbox->value());
+  return Utils::Configuration(m_curlLocation->text(), m_DownloadFolder->text(), m_waitSpinbox->value(), m_extension->text());
 }
 
 //----------------------------------------------------------------------------
@@ -46,6 +46,7 @@ void ConfigurationDialog::setConfiguration(const Utils::Configuration &config)
   if(!Utils::curlExecutableVersion(config.curlPath).isEmpty()) m_curlLocation->setText(config.curlPath);
   if(QDir(config.downloadPath).exists()) m_DownloadFolder->setText(config.downloadPath);
   if(config.waitSeconds >= 5) m_waitSpinbox->setValue(config.waitSeconds);
+  m_extension->setText(config.extension);
 }
 
 //----------------------------------------------------------------------------
@@ -102,7 +103,7 @@ void ConfigurationDialog::onDownloadFolderClicked()
 //----------------------------------------------------------------------------
 void ConfigurationDialog::closeEvent(QCloseEvent *e)
 {
-  const Utils::Configuration config(m_curlLocation->text(), m_DownloadFolder->text(), m_waitSpinbox->value());
+  const Utils::Configuration config(m_curlLocation->text(), m_DownloadFolder->text(), m_waitSpinbox->value(), m_extension->text());
 
   if(!config.isValid())
   {

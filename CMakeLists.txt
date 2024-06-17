@@ -4,8 +4,8 @@ project(Downloader)
 
 # Version Number
 set (VERSION_MAJOR 1)
-set (VERSION_MINOR 0)
-set (VERSION_PATCH 1)
+set (VERSION_MINOR 1)
+set (VERSION_PATCH 0)
 
 # Find the QtWidgets library
 find_package(Qt5 COMPONENTS Core Gui Widgets Multimedia Network WinExtras)

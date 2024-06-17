@@ -45,7 +45,7 @@ The application can be minimized to the tray area.
 
 # Repository information
 
-**Version**: 1.0.1
+**Version**: 1.1.0
 
 **Status**: finished
 
@@ -53,7 +53,7 @@ The application can be minimized to the tray area.
 
 | Language                     |files          |blank        |comment           |code  |
 |:-----------------------------|--------------:|------------:|-----------------:|-----:|
-| C++                          |   8           |  218        |  198             | 811  |
-| C/C++ Header                 |   7           |  130        |  373             | 250  |
+| C++                          |   8           |  225        |  201             | 886  |
+| C/C++ Header                 |   7           |  133        |  382             | 256  |
 | CMake                        |   1           |   12        |    3             |  61  |
-| **Total**                    | **16**        | **360**     | **574**          | **1122** |
+| **Total**                    | **16**        | **370**     | **586**          | **1203** |

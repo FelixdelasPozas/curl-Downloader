@@ -65,14 +65,20 @@ class ItemWidget
     /**
      * @brief Returns true if the widget's item has been downloaded and false otherwise. 
      */
-    bool hasFinished() const
+    bool isFinished() const
     { return m_finished; }
 
     /**
      * @brief Returns true if the process has been aborted and false otherwise.
      */
-    bool hasAborted() const
+    bool isAborted() const
     { return m_aborted; }
+
+    /**
+     * @brief Returns true it the process is paused and false otherwise. 
+     */
+    bool isPaused() const
+    { return m_paused; }
 
   public slots:
     /**
@@ -89,13 +95,18 @@ class ItemWidget
     virtual void mousePressEvent(QMouseEvent *) override;
 
   private: 
-    enum class Status: char { STARTING = 0, DOWNLOADING = 1, RETRYING = 2, ERROR = 3, FINISHED = 4, ABORTED = 5 };
+    enum class Status: char { STARTING = 0, DOWNLOADING = 1, RETRYING = 2, ERROR = 3, FINISHED = 4, ABORTED = 5, PAUSED = 6 };
 
   private slots:
     /**
      * @brief Shows the process console in a dialog.
     */
     void onNotesButtonPressed();
+
+    /**
+     * @brief Starts/pauses the download.
+     */
+    void onPlayButtonPressed();
 
     /**
      * @brief Handles curl process errors. 
@@ -148,11 +159,17 @@ class ItemWidget
      */
     void applyFont();
 
+    /**
+     * @brief Stops the process if running. 
+     */
+    void stopProcessImplementation();
+
   private:
     Utils::ItemInformation *m_item;       /** item information. */
     const Utils::Configuration &m_config; /** application configuration reference. */
     bool m_finished;                      /** true if the item has been downloaded and false otherwise. */
     bool m_aborted;                       /** true if aborted and false otherwise. */
+    bool m_paused;                        /** true if paused and false otherwise. */
     float m_progressVal;                  /** progress value in [0,100] */
     ConsoleOutputDialog m_console;        /** console text dialog. */
     QProcess m_process;                   /** curl process. */

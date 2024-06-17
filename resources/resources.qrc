@@ -15,6 +15,8 @@
 	<file>folder.svg</file>
 	<file>info.svg</file>
 	<file>settings.svg</file>
+	<file>play.svg</file>
+	<file>pause.svg</file>
 	<file>curl-symbol.png</file>
 	<file>Ubuntu-R.ttf</file>
   </qresource>

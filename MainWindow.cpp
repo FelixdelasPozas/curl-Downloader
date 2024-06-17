@@ -28,6 +28,8 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QMenu>
+#include <QFile>
+#include <QDir>
 
 // C++ 
 #include <cassert>
@@ -36,6 +38,7 @@
 const QString CURL_LOCATION_KEY = "Curl executable location";
 const QString DOWNLOAD_FOLDER_KEY = "Download folder";
 const QString WAIT_TIME_KEY = "Wait time";
+const QString TEMPORAL_EXTENSION = "Temporal extension";
 const QString GEOMETRY = "Window geometry";
 
 //----------------------------------------------------------------------------
@@ -142,24 +145,25 @@ void MainWindow::onProcessFinished()
   const auto widget = qobject_cast<ItemWidget*>(sender());
   if(widget)
   {
+    const auto hasFinished = widget->isFinished();
+
     const auto item = widget->item();
+    const QString title("Item information");
 
-    if(!isVisible())
+    if(hasFinished)
     {
-      m_trayIcon->showMessage("File downloaded!", item->url.fileName());
-    }
-    else
-    {
-      Utils::AutoCloseMessageBox msgBox(this);
-      msgBox.setWindowTitle("Item information");
-      msgBox.setStandardButtons(QMessageBox::Button::Ok);
-
-      if(widget->hasFinished())
-        msgBox.setText(QString("The url '%1' has finished downloading!").arg(item->url.fileName()));
+      if (!isVisible())
+      {
+        m_trayIcon->showMessage("File downloaded!", item->url.fileName());
+      }
       else
-        msgBox.setText(QString("The url '%1' has been aborted!").arg(item->url.fileName()));
-
-      msgBox.exec();
+      {
+        Utils::AutoCloseMessageBox msgBox(this);
+        msgBox.setWindowTitle(title);
+        msgBox.setStandardButtons(QMessageBox::Button::Ok);
+        msgBox.setText(QString("The url '%1' has finished downloading!").arg(item->url.fileName()));
+        msgBox.exec();
+      }
     }
 
     auto itemIt = Utils::findItem(item->url, m_items);
@@ -168,7 +172,40 @@ void MainWindow::onProcessFinished()
     m_items.erase(itemIt);
 
     m_scrollLayout->removeWidget(widget);
-    widget->deleteLater();
+    delete widget;
+
+    // rename and remove only if QProcess no longer exists and curl has finished.
+    if(hasFinished)
+    {
+      if (!m_config.extension.isEmpty())
+      {
+        QDir downloadDir(m_config.downloadPath);
+        if (!QFile::rename(downloadDir.absoluteFilePath(item->url.fileName() + m_config.extension), downloadDir.absoluteFilePath(item->url.fileName())))
+        {
+          const auto message = QString("Unable to rename the file '%1' to '%2'!").arg(item->url.fileName() + m_config.extension).arg(item->url.fileName());
+          QMessageBox::critical(this, "Error!", message, QMessageBox::Button::Ok);
+        }
+      }
+    }
+    else
+    {
+      QMessageBox msgBox(this);
+      msgBox.setWindowTitle(title);
+      msgBox.setStandardButtons(QMessageBox::Button::Yes|QMessageBox::Button::No);
+      msgBox.setText(QString("The url '%1' has been aborted!\nDo you want to remove the temporal file?").arg(item->url.fileName()));
+
+      if (QMessageBox::Yes == msgBox.exec())
+      {
+        QDir downloadDir(m_config.downloadPath);
+
+        if (!QFile::remove(downloadDir.absoluteFilePath(item->url.fileName() + m_config.extension)))
+        {
+          const auto message = QString("Unable to remove the file '%1'!").arg(item->url.fileName() + m_config.extension);
+          QMessageBox::critical(this, "Error!", message, QMessageBox::Button::Ok);
+        }
+      }
+    }
+
     delete item;
 
     const QString trayMessage = !m_items.empty() ? QString("Downloading %1 file%2.").arg(m_items.size()).arg(m_items.size() > 1 ? "s":"") : QString("No downloads.");
@@ -226,8 +263,9 @@ void MainWindow::loadSettings()
   auto curlLocation = settings.value(CURL_LOCATION_KEY).toString();
   auto downloadFolder = settings.value(DOWNLOAD_FOLDER_KEY).toString();
   auto waitTime = settings.value(WAIT_TIME_KEY, 5).toUInt();
+  auto extension = settings.value(TEMPORAL_EXTENSION).toString();
 
-  Utils::Configuration config(curlLocation, downloadFolder, waitTime);
+  Utils::Configuration config(curlLocation, downloadFolder, waitTime, extension);
 
   if(!config.isValid())
     showConfigurationDialog();
@@ -252,6 +290,7 @@ void MainWindow::saveSettings()
   settings.setValue(CURL_LOCATION_KEY, m_config.curlPath);
   settings.setValue(DOWNLOAD_FOLDER_KEY, m_config.downloadPath);
   settings.setValue(WAIT_TIME_KEY, m_config.waitSeconds);
+  settings.setValue(TEMPORAL_EXTENSION, m_config.extension);
   settings.setValue(GEOMETRY, saveGeometry());
   settings.sync();
 }

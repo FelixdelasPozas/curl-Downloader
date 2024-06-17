@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>129</height>
+    <height>155</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>600</width>
-    <height>129</height>
+    <height>155</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>16777215</width>
-    <height>129</height>
+    <height>155</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -32,13 +32,27 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="m_curlLocation">
+     <item row="0" column="2">
+      <widget class="QPushButton" name="m_curlButton">
        <property name="toolTip">
-        <string>Location of the curl binary</string>
+        <string>Select the curl executable.</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="resources/resources.qrc">
+         <normaloff>:/Downloader/folder.svg</normaloff>:/Downloader/folder.svg</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="m_DownloadFolder">
+       <property name="toolTip">
+        <string>Location to store downloaded files.</string>
        </property>
        <property name="placeholderText">
-        <string>Enter location of the curl executable.</string>
+        <string>Enter location of the downloads folder.</string>
        </property>
       </widget>
      </item>
@@ -49,16 +63,6 @@
        </property>
        <property name="text">
         <string>Downloads folder</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="toolTip">
-        <string>Location of the curl binary</string>
-       </property>
-       <property name="text">
-        <string>curl executable location</string>
        </property>
       </widget>
      </item>
@@ -88,27 +92,13 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="m_DownloadFolder">
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="m_curlLocation">
        <property name="toolTip">
-        <string>Location to store downloaded files.</string>
+        <string>Location of the curl binary</string>
        </property>
        <property name="placeholderText">
-        <string>Enter location of the downloads folder.</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="m_curlButton">
-       <property name="toolTip">
-        <string>Select the curl executable.</string>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-       <property name="icon">
-        <iconset resource="resources/resources.qrc">
-         <normaloff>:/Downloader/folder.svg</normaloff>:/Downloader/folder.svg</iconset>
+        <string>Enter location of the curl executable.</string>
        </property>
       </widget>
      </item>
@@ -123,6 +113,33 @@
        <property name="icon">
         <iconset resource="resources/resources.qrc">
          <normaloff>:/Downloader/folder.svg</normaloff>:/Downloader/folder.svg</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="toolTip">
+        <string>Location of the curl binary</string>
+       </property>
+       <property name="text">
+        <string>curl executable location</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Temporal extension</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="m_extension">
+       <property name="toolTip">
+        <string>Extension to use while downloading.</string>
+       </property>
+       <property name="placeholderText">
+        <string>Extension to use while downloading or empty for original filename.</string>
        </property>
       </widget>
      </item>
