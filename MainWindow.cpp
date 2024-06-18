@@ -30,6 +30,7 @@
 #include <QMenu>
 #include <QFile>
 #include <QDir>
+#include <QtWinExtras/QWinTaskbarProgress>
 
 // C++ 
 #include <cassert>
@@ -46,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
 : QMainWindow(parent, flags)
 , m_needsExit{false}
 , m_trayIcon{new QSystemTrayIcon(QIcon(":/Downloader/download-bold.svg"), this)}
+, m_taskbarButton{nullptr}
 {
   setupUi(this);
 
@@ -83,6 +85,9 @@ MainWindow::~MainWindow()
   m_items.clear();
 
   saveSettings();
+
+  if(m_taskbarButton)
+    m_taskbarButton->deleteLater();
 }
 
 //----------------------------------------------------------------------------
@@ -121,6 +126,7 @@ void MainWindow::addItem()
 
   connect(itemWidget, SIGNAL(cancelled()), this, SLOT(onProcessFinished()));
   connect(itemWidget, SIGNAL(finished()), this, SLOT(onProcessFinished()));
+  connect(itemWidget, SIGNAL(progress()), this, SLOT(onWidgetProgress()));
 
   m_scrollLayout->insertWidget(m_scrollLayout->count()-1, itemWidget);
   m_trayIcon->setToolTip(QString("Downloading %1 file%2.").arg(m_items.size()).arg(m_items.size() > 1 ? "s":""));
@@ -210,6 +216,9 @@ void MainWindow::onProcessFinished()
 
     const QString trayMessage = !m_items.empty() ? QString("Downloading %1 file%2.").arg(m_items.size()).arg(m_items.size() > 1 ? "s":"") : QString("No downloads.");
     m_trayIcon->setToolTip(trayMessage);
+
+    // update global progress.
+    onWidgetProgress();
   }
   else
   {
@@ -255,6 +264,20 @@ void MainWindow::closeEvent(QCloseEvent *e)
   }
 }
 
+//-----------------------------------------------------------------
+void MainWindow::showEvent(QShowEvent* e)
+{
+  QMainWindow::showEvent(e);
+
+  if(!m_taskbarButton)
+  {
+    m_taskbarButton = new QWinTaskbarButton(this);
+    m_taskbarButton->setWindow(this->windowHandle());
+    m_taskbarButton->progress()->setRange(0, 100);
+    m_taskbarButton->progress()->setVisible(true);
+    m_taskbarButton->progress()->setValue(0);
+  }
+}
 //----------------------------------------------------------------------------
 void MainWindow::loadSettings()
 {
@@ -332,5 +355,19 @@ void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
   {
     showNormal();
     m_trayIcon->hide();
+  }
+}
+
+//----------------------------------------------------------------------------
+void MainWindow::onWidgetProgress()
+{
+  if(m_taskbarButton && !m_items.empty())
+  {
+    float globalProgressValue = 0.f;
+    std::for_each(m_widgets.cbegin(), m_widgets.cend(), [&globalProgressValue](const ItemWidget *w){ globalProgressValue += w->progress(); });
+    globalProgressValue /= m_items.size();
+    globalProgressValue = std::min(100.f, std::max(0.f, globalProgressValue));
+
+    m_taskbarButton->progress()->setValue(static_cast<int>(globalProgressValue));
   }
 }

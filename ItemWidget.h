@@ -80,6 +80,12 @@ class ItemWidget
     bool isPaused() const
     { return m_paused; }
 
+    /**
+     * @brief Returns the current progress value for this widget. 
+     */
+    unsigned int progress() const
+    { return m_progressVal; }
+
   public slots:
     /**
      * @brief Stops the curl process.
@@ -89,6 +95,7 @@ class ItemWidget
   signals:
     void cancelled();
     void finished();
+    void progress();
 
   protected:
     virtual void paintEvent(QPaintEvent *event) override;

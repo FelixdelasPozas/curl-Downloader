@@ -27,6 +27,7 @@
 // Qt
 #include <QMainWindow>
 #include <QSystemTrayIcon>
+#include <QtWinExtras/QWinTaskbarButton>
 
 class ItemWidget;
 
@@ -53,6 +54,7 @@ class MainWindow
 
   protected: 
     virtual void closeEvent(QCloseEvent *e) override;
+    virtual void showEvent(QShowEvent *e) override;
 
   private slots:
     /** 
@@ -86,6 +88,11 @@ class MainWindow
      */
     void onTrayActivated(QSystemTrayIcon::ActivationReason reason = QSystemTrayIcon::DoubleClick);
 
+    /**
+     * @brief Updates the global progress in the taskbar button.
+     */
+    void onWidgetProgress();
+
   private:
     /**
      * @brief Connects the signals to the slots. 
@@ -113,6 +120,7 @@ class MainWindow
     std::vector<ItemWidget *> m_widgets;           /** list of item widgets. */
     bool m_needsExit;                              /** true if the application has to quit and false to minimize to tray. */
     QSystemTrayIcon *m_trayIcon;                   /** tray icon. */
+    QWinTaskbarButton *m_taskbarButton;            /** taskbar progress button. */
 };
 
 #endif

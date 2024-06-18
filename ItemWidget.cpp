@@ -116,35 +116,40 @@ void ItemWidget::onErrorOcurred(QProcess::ProcessError error)
   switch(error)
   {
     case QProcess::ProcessError::Crashed:
-      errorMessage = "Process crashed!";
+      errorMessage = "crashed!";
       break;
     case QProcess::ProcessError::FailedToStart:
-      errorMessage = "Process failed to start!";
+      errorMessage = "failed to start!";
       break;
     case QProcess::ProcessError::ReadError:
-      errorMessage = "Process read error!";
+      errorMessage = "read error!";
       break;
     case QProcess::ProcessError::Timedout:
-      errorMessage = "Process timed out!";
+      errorMessage = "timed out!";
       break;
     case QProcess::ProcessError::WriteError:
-      errorMessage = "Process write error!";
+      errorMessage = "write error!";
       break;
     default:
     case QProcess::ProcessError::UnknownError:
-      errorMessage = "Process unknown error!";
+      errorMessage = "unknown error!";
       break;
   }
 
   setStatus(Status::ERROR);
-  m_console.addText("\n" + errorMessage + "\n");
+  m_console.addText("Process " + errorMessage + "\n");
 }
 
 //----------------------------------------------------------------------------
 void ItemWidget:: updateWidget(const unsigned int progressValue, const QString &speed, const QString &timeRemain)
 {
-  m_progressVal = progressValue;
-  m_progress->setText(QString("%1%").arg(m_progressVal));
+  if(m_progressVal != progressValue)
+  {
+    m_progressVal = progressValue;
+    m_progress->setText(QString("%1%").arg(m_progressVal));
+    emit progress();
+  }
+  
   m_speed->setText(speed.isEmpty() ? "??":speed);
   m_remain->setText(timeRemain.isEmpty() ? "--:--:--": timeRemain);
 
@@ -165,8 +170,7 @@ void ItemWidget::onFinished(int code , QProcess::ExitStatus status)
       break;
   }
 
-  m_console.addText("\n" + message + "\n");
-  m_console.addText(message);
+  m_console.addText(message + "\n");
 
   if(m_paused)
     return;
@@ -178,7 +182,7 @@ void ItemWidget::onFinished(int code , QProcess::ExitStatus status)
   {
     m_finished = (code == 0);
     setStatus(Status::RETRYING);
-    m_console.addText(QString("\nRetrying in %1 seconds...\n").arg(m_config.waitSeconds));
+    m_console.addText(QString("Retrying in %1 seconds...\n").arg(m_config.waitSeconds));
     sleep(m_config.waitSeconds);
     startProcess();
   }
@@ -216,7 +220,7 @@ void ItemWidget::onTextReady()
     const auto percentage = parts.front().toUInt(&isValid);
     if(!isValid || percentage > 100 || parts.size() != 12) continue;
 
-    updateWidget(percentage, parts[11], parts[10]);  
+    updateWidget(percentage, parts[11].remove('\n').remove('\r'), parts[10]);  
     setStatus(Status::DOWNLOADING);
     m_console.addText(text + "\n");
     break;
