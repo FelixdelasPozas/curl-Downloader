@@ -27,25 +27,27 @@ The following libraries are required:
 The only current option is build from source as binaries are not provided. 
 
 # Screenshots
-Main dialog with a console output dialog of one of the files being downloaded. The progress of each download is represented in the green background. For each download a widget with the name, status (downloading, retrying, etc...), remaining time, speed (in bytes usually, uses curl units), progress value and buttons to show the console output and cancel the download is shown.
+Main dialog with a console output dialog of one of the files being downloaded. The progress of each download is represented in the green background. 
 
-![maindialog](https://github.com/FelixdelasPozas/curl-Downloader/assets/12167134/48f1d574-fc60-4546-bf35-3a42bd7f0db3)
+For each download a widget with the name, status (downloading, retrying, etc...), remaining time, speed (in bytes usually, uses curl units), progress value and buttons to pause/restart the download, show the console output and cancel the download is shown.
+
+![maindialog](https://github.com/FelixdelasPozas/curl-Downloader/assets/12167134/75049dbc-cc80-413b-a9cf-ff700c8cee01)
 
 Add item dialog. If the server is left empty the file will be downloaded using no proxy. Otherwise the protocols SOCKS4 and SOCKS5 are available for download. Once a file is being downloaded the server and port can be changed by right-clicking the item information widget in the main dialog. 
 
-![additem](https://github.com/FelixdelasPozas/curl-Downloader/assets/12167134/89b25e1c-e1b4-4d4c-84d3-019f1eb78387)
+![additem](https://github.com/FelixdelasPozas/curl-Downloader/assets/12167134/4455ebcb-e8f5-46ef-862f-88e32cc0e9e5)
 
-Configuration dialog. The curl executable is checked to ensure the configuration is valid, same with the download folder. 
+Configuration dialog. The curl executable is checked to ensure the configuration is valid, same with the download folder. An optional temporal extension can be set, and the file will be renamed to the original file name when finished downloading.
 
-![configuration](https://github.com/FelixdelasPozas/curl-Downloader/assets/12167134/a12e1a92-e75f-4131-afb8-bbbd619f48c2)
+![configuration](https://github.com/FelixdelasPozas/curl-Downloader/assets/12167134/f313bd02-07b8-499e-a828-8ea5e8fe3a26)
 
-The application can be minimized to the tray area.
+The application can be minimized to the tray area. If visible the global progress is shown in the taskbar button.
 
 ![tray](https://github.com/FelixdelasPozas/curl-Downloader/assets/12167134/633e1064-930a-4bc0-ab17-0fb4bae3ef00)
 
 # Repository information
 
-**Version**: 1.1.0
+**Version**: 1.2.0
 
 **Status**: finished
 
@@ -53,7 +55,7 @@ The application can be minimized to the tray area.
 
 | Language                     |files          |blank        |comment           |code  |
 |:-----------------------------|--------------:|------------:|-----------------:|-----:|
-| C++                          |   8           |  225        |  201             | 886  |
-| C/C++ Header                 |   7           |  133        |  382             | 256  |
+| C++                          |   8           |  231        |  204             | 918  |
+| C/C++ Header                 |   7           |  135        |  388             | 263  |
 | CMake                        |   1           |   12        |    3             |  61  |
-| **Total**                    | **16**        | **370**     | **586**          | **1203** |
+| **Total**                    | **16**        | **378**     | **595**          | **1242** |
