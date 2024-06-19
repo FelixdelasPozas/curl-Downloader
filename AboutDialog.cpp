@@ -21,7 +21,7 @@
 #include <AboutDialog.h>
 #include <Utils.h>
 
-const QString AboutDialog::VERSION = QString("version 1.2.0");
+const QString AboutDialog::VERSION = QString("version 1.2.1");
 
 //-----------------------------------------------------------------
 AboutDialog::AboutDialog(const Utils::Configuration &config, QWidget *parent, Qt::WindowFlags flags)

@@ -146,10 +146,10 @@ void ItemWidget:: updateWidget(const unsigned int progressValue, const QString &
   if(m_progressVal != progressValue)
   {
     m_progressVal = progressValue;
-    m_progress->setText(QString("%1%").arg(m_progressVal));
     emit progress();
   }
   
+  m_progress->setText(QString("%1%").arg(m_progressVal));
   m_speed->setText(speed.isEmpty() ? "??":speed);
   m_remain->setText(timeRemain.isEmpty() ? "--:--:--": timeRemain);
 

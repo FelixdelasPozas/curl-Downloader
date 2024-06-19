@@ -129,7 +129,7 @@ void MainWindow::addItem()
   connect(itemWidget, SIGNAL(progress()), this, SLOT(onWidgetProgress()));
 
   m_scrollLayout->insertWidget(m_scrollLayout->count()-1, itemWidget);
-  m_trayIcon->setToolTip(QString("Downloading %1 file%2.").arg(m_items.size()).arg(m_items.size() > 1 ? "s":""));
+  onWidgetProgress();
 }
 
 //----------------------------------------------------------------------------
@@ -213,9 +213,6 @@ void MainWindow::onProcessFinished()
     }
 
     delete item;
-
-    const QString trayMessage = !m_items.empty() ? QString("Downloading %1 file%2.").arg(m_items.size()).arg(m_items.size() > 1 ? "s":"") : QString("No downloads.");
-    m_trayIcon->setToolTip(trayMessage);
 
     // update global progress.
     onWidgetProgress();
@@ -369,5 +366,6 @@ void MainWindow::onWidgetProgress()
     globalProgressValue = std::min(100.f, std::max(0.f, globalProgressValue));
 
     m_taskbarButton->progress()->setValue(static_cast<int>(globalProgressValue));
+    m_trayIcon->setToolTip(QString("Downloading %1 file%2.\nProgress: %3%").arg(m_items.size()).arg(m_items.size() > 1 ? "s":"").arg(globalProgressValue));
   }
 }
