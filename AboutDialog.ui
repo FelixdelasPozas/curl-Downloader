@@ -130,7 +130,7 @@
             <string>Official homepage</string>
            </property>
            <property name="text">
-            <string>&lt;a href=&quot;https://github.com/FelixdelasPozas/&quot;&gt;Homepage&lt;/a&gt;</string>
+            <string>&lt;a href=&quot;https://github.com/FelixdelasPozas/curl-Downloader&quot;&gt;Homepage&lt;/a&gt;</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
