@@ -213,15 +213,15 @@ void MainWindow::onProcessFinished()
     }
 
     delete item;
-
-    // update global progress.
-    onWidgetProgress();
   }
   else
   {
     QMessageBox::critical(this, "Crash!", "Unable to identify removeItem sender!", QMessageBox::Button::Ok);
     throw std::runtime_error("Unable to identify removeItem sender!");
   }
+
+  // update global progress.
+  onWidgetProgress();
 }
 
 //----------------------------------------------------------------------------
@@ -358,14 +358,18 @@ void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
 //----------------------------------------------------------------------------
 void MainWindow::onWidgetProgress()
 {
-  if(m_taskbarButton && !m_items.empty())
+  float globalProgressValue = 0.f;
+
+  if(!m_items.empty())
   {
-    float globalProgressValue = 0.f;
     std::for_each(m_widgets.cbegin(), m_widgets.cend(), [&globalProgressValue](const ItemWidget *w){ globalProgressValue += w->progress(); });
     globalProgressValue /= m_items.size();
     globalProgressValue = std::min(100.f, std::max(0.f, globalProgressValue));
-
-    m_taskbarButton->progress()->setValue(static_cast<int>(globalProgressValue));
     m_trayIcon->setToolTip(QString("Downloading %1 file%2.\nProgress: %3%").arg(m_items.size()).arg(m_items.size() > 1 ? "s":"").arg(globalProgressValue));
   }
+  else
+    m_trayIcon->setToolTip(tr("No downloads."));
+
+  if(m_taskbarButton)
+    m_taskbarButton->progress()->setValue(static_cast<int>(globalProgressValue));
 }
