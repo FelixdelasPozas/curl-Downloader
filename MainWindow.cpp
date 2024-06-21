@@ -358,18 +358,18 @@ void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
 //----------------------------------------------------------------------------
 void MainWindow::onWidgetProgress()
 {
-  float globalProgressValue = 0.f;
+  int progressValue = 0;
 
   if(!m_items.empty())
   {
-    std::for_each(m_widgets.cbegin(), m_widgets.cend(), [&globalProgressValue](const ItemWidget *w){ globalProgressValue += w->progress(); });
-    globalProgressValue /= m_items.size();
-    globalProgressValue = std::min(100.f, std::max(0.f, globalProgressValue));
-    m_trayIcon->setToolTip(QString("Downloading %1 file%2.\nProgress: %3%").arg(m_items.size()).arg(m_items.size() > 1 ? "s":"").arg(globalProgressValue));
+    std::for_each(m_widgets.cbegin(), m_widgets.cend(), [&progressValue](const ItemWidget *w){ progressValue += w->progress(); });
+    progressValue /= m_items.size();
+    progressValue = std::min(100, std::max(0, progressValue));
+    m_trayIcon->setToolTip(QString("Downloading %1 file%2.\nProgress: %3%").arg(m_items.size()).arg(m_items.size() > 1 ? "s":"").arg(progressValue));
   }
   else
     m_trayIcon->setToolTip(tr("No downloads."));
 
   if(m_taskbarButton)
-    m_taskbarButton->progress()->setValue(static_cast<int>(globalProgressValue));
+    m_taskbarButton->progress()->setValue(static_cast<int>(progressValue));
 }
