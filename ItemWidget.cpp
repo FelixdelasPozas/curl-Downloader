@@ -182,8 +182,7 @@ void ItemWidget::onFinished(int code , QProcess::ExitStatus status)
   {
     m_finished = (code == 0);
     setStatus(Status::RETRYING);
-    m_console.addText(QString("Retrying in %1 seconds...\n").arg(m_config.waitSeconds));
-    sleep(m_config.waitSeconds);
+    m_console.addText(QString("Retrying...\n").arg(m_config.waitSeconds));
     startProcess();
   }
   else
@@ -291,7 +290,8 @@ void ItemWidget::startProcess()
   arguments << "--location"; // Follow redirects
   arguments << "--retry" << "999"; // <num> Retry request if transient problems occur
   arguments << "--retry-connrefused"; // Retry on connection refused (use with --retry)
-  arguments << "--retry-delay" << QString::number(m_config.waitSeconds); // <seconds> Wait time between retries  
+  arguments << "--retry-delay" << QString::number(m_config.waitSeconds); // <seconds> Wait time between retries
+  arguments << "--globoff"; // Switch off the URL globbing function, parses urls with {}[] chars.  
   arguments << "--output" << m_item->url.fileName() + m_config.extension; // with temporal extension, if any.
   if(!m_item->server.isEmpty())
   {
