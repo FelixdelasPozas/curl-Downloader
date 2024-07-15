@@ -47,7 +47,7 @@ The application can be minimized to the tray area. If visible the global progres
 
 # Repository information
 
-**Version**: 1.2.3
+**Version**: 1.2.4
 
 **Status**: finished
 
