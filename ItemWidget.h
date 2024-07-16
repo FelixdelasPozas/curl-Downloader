@@ -133,6 +133,11 @@ class ItemWidget
      */
     void onTextReady();
 
+    /**
+     * @brief Starts the curl process. 
+     */
+    void startProcess();
+
   private:
     /**
      * @brief Connects signals to slots.
@@ -150,11 +155,6 @@ class ItemWidget
      * @param status Status value.
      */
     void setStatus(const Status status);
-
-    /**
-     * @brief Starts the curl process. 
-     */
-    void startProcess();
 
     /** 
      * @brief Loads the font from the resources file.

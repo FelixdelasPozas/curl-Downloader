@@ -55,7 +55,7 @@ The application can be minimized to the tray area. If visible the global progres
 
 | Language                     |files          |blank        |comment           |code  |
 |:-----------------------------|--------------:|------------:|-----------------:|-----:|
-| C++                          |   8           |  231        |  204             | 920  |
+| C++                          |   8           |  231        |  204             | 921  |
 | C/C++ Header                 |   7           |  135        |  388             | 263  |
 | CMake                        |   1           |   12        |    3             |  61  |
 | **Total**                    | **16**        | **378**     | **595**          | **1244** |

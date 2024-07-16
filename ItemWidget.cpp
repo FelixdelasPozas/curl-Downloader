@@ -29,6 +29,7 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QFontDatabase>
+#include <QTimer>
 
 // C++
 #include <unistd.h> // sleep
@@ -182,8 +183,8 @@ void ItemWidget::onFinished(int code , QProcess::ExitStatus status)
   {
     m_finished = (code == 0);
     setStatus(Status::RETRYING);
-    m_console.addText(QString("Retrying...\n").arg(m_config.waitSeconds));
-    startProcess();
+    m_console.addText(QString("Retrying in %1 seconds...\n").arg(m_config.waitSeconds));
+    QTimer::singleShot(5000, this, SLOT(startProcess()));
   }
   else
   {
