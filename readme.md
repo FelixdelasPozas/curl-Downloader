@@ -33,9 +33,9 @@ For each download a widget with the name, status (downloading, retrying, etc...)
 
 ![maindialog](https://github.com/FelixdelasPozas/curl-Downloader/assets/12167134/75049dbc-cc80-413b-a9cf-ff700c8cee01)
 
-Add item dialog. If the server is left empty the file will be downloaded using no proxy. Otherwise the protocols SOCKS4 and SOCKS5 are available for download. Once a file is being downloaded the server and port can be changed by right-clicking the item information widget in the main dialog. 
+Add item dialog. If the server is left empty the file will be downloaded using no proxy. Otherwise the protocols SOCKS4 and SOCKS5 are available for download. Once a file is being downloaded the server, port and output name on local disk can be changed by right-clicking the item information widget in the main dialog. 
 
-![additem](https://github.com/FelixdelasPozas/curl-Downloader/assets/12167134/4455ebcb-e8f5-46ef-862f-88e32cc0e9e5)
+![additem](https://github.com/user-attachments/assets/cd78db32-2cc1-47a5-ae4b-a36cc210a717)
 
 Configuration dialog. The curl executable is checked to ensure the configuration is valid, same with the download folder. An optional temporal extension can be set, and the file will be renamed to the original file name when finished downloading.
 
@@ -47,7 +47,7 @@ The application can be minimized to the tray area. If visible the global progres
 
 # Repository information
 
-**Version**: 1.2.4
+**Version**: 1.3.0
 
 **Status**: finished
 
@@ -55,7 +55,7 @@ The application can be minimized to the tray area. If visible the global progres
 
 | Language                     |files          |blank        |comment           |code  |
 |:-----------------------------|--------------:|------------:|-----------------:|-----:|
-| C++                          |   8           |  231        |  204             | 921  |
-| C/C++ Header                 |   7           |  135        |  388             | 263  |
+| C++                          |   8           |  233        |  204             | 929  |
+| C/C++ Header                 |   7           |  137        |  398             | 267  |
 | CMake                        |   1           |   12        |    3             |  61  |
-| **Total**                    | **16**        | **378**     | **595**          | **1244** |
+| **Total**                    | **16**        | **382**     | **605**          | **1257** |
