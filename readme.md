@@ -43,7 +43,7 @@ Configuration dialog. The curl executable is checked to ensure the configuration
 
 The application can be minimized to the tray area. If visible the global progress is shown in the taskbar button.
 
-![tray](https://github.com/FelixdelasPozas/curl-Downloader/assets/12167134/633e1064-930a-4bc0-ab17-0fb4bae3ef00)
+![tray](https://github.com/user-attachments/assets/03537053-d1ca-4ada-b12d-25bf91db6fb8)
 
 # Repository information
 
