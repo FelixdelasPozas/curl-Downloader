@@ -47,39 +47,23 @@ ItemWidget::ItemWidget(const Utils::Configuration &config, Utils::ItemInformatio
 , m_progressVal{0}
 , m_console{parent}
 , m_process{this}
-, m_addItem{nullptr}
 {
   setupUi(this);
   if(loadFont())
     applyFont();
 
   m_console.hide();
-  m_console.setWindowTitle(tr("%1 process console output.").arg(m_item->url.fileName()));
+  m_console.setWindowTitle(tr("'%1' process console output.").arg(m_item->outputName));
   m_status->setTextFormat(Qt::TextFormat::RichText);
 
   connectSignals();
 
   setToolTip(m_item->toText());
 
-  m_filename->setText("<p style='white-space:pre'><b>" + m_item->url.fileName() + "</b>");
+  m_filename->setText("<p style='white-space:pre'><b>" + m_item->outputName + "</b>");
   updateWidget(0, "??", "--:--:--");
   setStatus(Status::STARTING);
   startProcess();
-}
-
-//----------------------------------------------------------------------------
-ItemWidget::~ItemWidget()
-{
-  if(m_addItem)
-  {
-    if (m_addItem->isVisible())
-      m_addItem->done(QDialog::Rejected);
-
-    m_addItem->deleteLater();
-    m_addItem = nullptr;
-  }
-
-  m_addItem = nullptr;
 }
 
 //----------------------------------------------------------------------------
@@ -293,7 +277,7 @@ void ItemWidget::startProcess()
   arguments << "--retry-connrefused"; // Retry on connection refused (use with --retry)
   arguments << "--retry-delay" << QString::number(m_config.waitSeconds); // <seconds> Wait time between retries
   arguments << "--globoff"; // Switch off the URL globbing function, parses urls with {}[] chars.  
-  arguments << "--output" << m_item->url.fileName() + m_config.extension; // with temporal extension, if any.
+  arguments << "--output" << m_item->outputName + m_config.extension; // with temporal extension, if any.
   if(!m_item->server.isEmpty())
   {
     if(m_item->protocol != Utils::Protocol::NONE)
@@ -306,7 +290,7 @@ void ItemWidget::startProcess()
   }
 
   // Continue if possible
-  if(QDir(m_config.downloadPath).exists(m_item->url.fileName() + m_config.extension))
+  if(QDir(m_config.downloadPath).exists(m_item->outputName + m_config.extension))
     arguments << "--continue-at" << "-";
 
   arguments << "--url" << m_item->url.toString();
@@ -322,16 +306,15 @@ void ItemWidget::stopProcess()
 {
   if(!m_aborted)
   {
-    const auto filename = m_item->url.fileName();
-    {
-      QMessageBox msgBox(this);
-      msgBox.setWindowTitle(filename);
-      msgBox.setStandardButtons(QMessageBox::Button::Yes|QMessageBox::Button::No);
-      msgBox.setText(QString("Do you want to cancel the download of '%1'?").arg(filename));
+    const auto filename = m_item->outputName;
 
-      if(msgBox.exec() == QMessageBox::No)
-        return;
-    }
+    QMessageBox msgBox(this);
+    msgBox.setWindowTitle(filename);
+    msgBox.setStandardButtons(QMessageBox::Button::Yes | QMessageBox::Button::No);
+    msgBox.setText(QString("Do you want to cancel the download of '%1'?").arg(filename));
+
+    if (msgBox.exec() == QMessageBox::No)
+      return;
 
     m_cancel->setEnabled(false);
     m_playPause->setEnabled(false);
@@ -369,28 +352,42 @@ void ItemWidget::paintEvent(QPaintEvent *event)
 //----------------------------------------------------------------------------
 void ItemWidget::mousePressEvent(QMouseEvent *)
 {
-  if(!m_addItem)
-  {
-    m_addItem = new AddItemDialog(this);
-    m_addItem->setItem(m_item);
-    m_addItem->setWindowTitle("Modify item server and port");
-    m_addItem->m_url->setReadOnly(true);
-  }
+  AddItemDialog dialog(this);
+  dialog.setWindowTitle("Modify item");
+  dialog.m_url->setReadOnly(true);
+  dialog.setItem(m_item);
 
-  if(m_addItem->exec() == QDialog::Accepted)
+  if(dialog.exec() == QDialog::Accepted)
   {
-    const auto item = m_addItem->getItem();
-    if(item->server != m_item->server)
+    const auto item = dialog.getItem();
+    if(m_item->operator!=(*item))
     {
       m_item->port = item->port;
       m_item->protocol = item->protocol;
       m_item->server = item->server;
+      const auto previousName = m_item->outputName;
+      m_item->outputName = item->outputName;
 
       // force process restart.
       m_process.terminate();
       m_process.kill();
       m_process.waitForFinished();
+
+      if(previousName.compare(m_item->outputName) != 0)
+      {
+        if(!QDir(m_config.downloadPath).rename(previousName + m_config.extension, m_item->outputName + m_config.extension))
+        {
+          QMessageBox::critical(this, previousName, QString("Unable to rename file '%1' to '%2'.").arg(previousName).arg(m_item->outputName));
+          m_item->outputName = previousName;
+        }
+        else
+        {
+          m_filename->setText("<p style='white-space:pre'><b>" + m_item->outputName + "</b>");
+          m_console.setWindowTitle(tr("%1 process console output.").arg(m_item->outputName));
+        }
+      }
     }
+
     delete item;
   }
 }

@@ -44,6 +44,7 @@ void AddItemDialog::setItem(const Utils::ItemInformation *item)
 
     const int index = item->protocol == Utils::Protocol::SOCKS4 ? 0 : (item->protocol == Utils::Protocol::NONE ? 2 : 1);
     m_protocolCombo->setCurrentIndex(index);
+    m_name->setText(item->outputName);
   }
 }
 
@@ -53,7 +54,11 @@ Utils::ItemInformation* AddItemDialog::getItem() const
   auto item = new Utils::ItemInformation(QUrl(m_url->text()),
                                          m_serverIP->text(),
                                          m_serverPort->text().toUInt(),
-                                         static_cast<Utils::Protocol>(m_protocolCombo->currentIndex()));
+                                         static_cast<Utils::Protocol>(m_protocolCombo->currentIndex()), 
+                                         m_name->text());
+
+  if (item->outputName.isEmpty())
+    item->outputName = item->url.fileName();
 
   return item;                                
 }
@@ -64,7 +69,8 @@ void AddItemDialog::closeEvent(QCloseEvent *e)
   const auto item = Utils::ItemInformation(QUrl(m_url->text()),
                                            m_serverIP->text(),
                                            m_serverPort->text().toUInt(),
-                                           static_cast<Utils::Protocol>(m_protocolCombo->currentIndex()));
+                                           static_cast<Utils::Protocol>(m_protocolCombo->currentIndex()), 
+                                           m_name->text());
 
   if(!item.isValid())
   {

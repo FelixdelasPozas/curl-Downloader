@@ -47,8 +47,15 @@ QString Utils::ItemInformation::toText() const
     text += QString("Proxy server: None");
 
   if(!server.isEmpty()) text += QString("Protocol: %1").arg(protocol == Protocol::SOCKS4 ? "SOCKS4": (protocol == Protocol::NONE) ? "None":"SOCKS5");
-
+  text += "Output name: " + outputName + '\n';
+  
   return text;
+}
+
+//----------------------------------------------------------------------------
+bool Utils::ItemInformation::operator==(const ItemInformation &other)
+{
+  return (url == other.url) && (server == other.server) && (port == other.port) && (protocol == other.protocol) && (outputName == other.outputName);
 }
 
 //----------------------------------------------------------------------------

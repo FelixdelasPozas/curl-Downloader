@@ -48,10 +48,11 @@ namespace Utils
    */
   struct ItemInformation
   {
-    QUrl url;          /** url of file to download. */
-    QString server;    /** server address ip. */
-    unsigned int port; /** server address port. */
-    Protocol protocol; /** protocol version used. */
+    QUrl url;           /** url of file to download. */
+    QString server;     /** server address ip. */
+    unsigned int port;  /** server address port. */
+    Protocol protocol;  /** protocol version used. */
+    QString outputName; /** output file name. */
 
     /**
      * @brief ItemInformation constructor.
@@ -60,8 +61,8 @@ namespace Utils
      * @param serverPort server address port.
      * @param fProtocol protocol used.
      */
-    ItemInformation(const QUrl fileUrl, const QString &serverIp, const unsigned int serverPort, const Protocol fProtocol)
-    : url{fileUrl}, server{serverIp}, port{serverPort}, protocol{fProtocol} {};
+    ItemInformation(const QUrl fileUrl, const QString &serverIp, const unsigned int serverPort, const Protocol fProtocol, const QString &fName)
+    : url{fileUrl}, server{serverIp}, port{serverPort}, protocol{fProtocol}, outputName{fName} {};
 
     /** 
      * @brief ItemInformation empty constructor. 
@@ -77,6 +78,21 @@ namespace Utils
      * @brief Returns the information as a text string.
      */
     QString toText() const;
+
+    /**
+     * @brief  Operator Equal
+     * @param other Other ItemInformation struct
+     * @return True if equal and false otherwise. 
+     */
+    bool operator==(const ItemInformation &other);
+
+    /**
+     * @brief  Operator Disequal
+     * @param other Other ItemInformation struct
+     * @return True if not equal and false if equal. 
+     */
+    bool operator!=(const ItemInformation &other)
+    { return !this->operator==(other); }
   };
 
   /**

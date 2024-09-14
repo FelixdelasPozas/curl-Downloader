@@ -54,7 +54,8 @@ class ItemWidget
     /** 
      * @brief ItemWidget class virtual destructor. 
     */
-    virtual ~ItemWidget();
+    virtual ~ItemWidget()
+    {};
 
     /**
      * @brief Returns the item information of this widget. 
@@ -180,7 +181,6 @@ class ItemWidget
     float m_progressVal;                  /** progress value in [0,100] */
     ConsoleOutputDialog m_console;        /** console text dialog. */
     QProcess m_process;                   /** curl process. */
-    AddItemDialog *m_addItem;             /** dialog to modify the item if necessary. */
 };
 
 #endif

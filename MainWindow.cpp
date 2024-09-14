@@ -160,14 +160,14 @@ void MainWindow::onProcessFinished()
     {
       if (!isVisible())
       {
-        m_trayIcon->showMessage("File downloaded!", item->url.fileName());
+        m_trayIcon->showMessage("File downloaded!", item->outputName);
       }
       else
       {
         Utils::AutoCloseMessageBox msgBox(this);
         msgBox.setWindowTitle(title);
         msgBox.setStandardButtons(QMessageBox::Button::Ok);
-        msgBox.setText(QString("The url '%1' has finished downloading!").arg(item->url.fileName()));
+        msgBox.setText(QString("The file '%1' has finished downloading!").arg(item->outputName));
         msgBox.exec();
       }
     }
@@ -186,9 +186,9 @@ void MainWindow::onProcessFinished()
       if (!m_config.extension.isEmpty())
       {
         QDir downloadDir(m_config.downloadPath);
-        if (!QFile::rename(downloadDir.absoluteFilePath(item->url.fileName() + m_config.extension), downloadDir.absoluteFilePath(item->url.fileName())))
+        if (!QFile::rename(downloadDir.absoluteFilePath(item->outputName + m_config.extension), downloadDir.absoluteFilePath(item->outputName)))
         {
-          const auto message = QString("Unable to rename the file '%1' to '%2'!").arg(item->url.fileName() + m_config.extension).arg(item->url.fileName());
+          const auto message = QString("Unable to rename the file '%1' to '%2'!").arg(item->outputName + m_config.extension).arg(item->outputName);
           QMessageBox::critical(this, "Error!", message, QMessageBox::Button::Ok);
         }
       }
@@ -198,15 +198,15 @@ void MainWindow::onProcessFinished()
       QMessageBox msgBox(this);
       msgBox.setWindowTitle(title);
       msgBox.setStandardButtons(QMessageBox::Button::Yes|QMessageBox::Button::No);
-      msgBox.setText(QString("The url '%1' has been aborted!\nDo you want to remove the temporal file?").arg(item->url.fileName()));
+      msgBox.setText(QString("The file '%1' has been aborted!\nDo you want to remove the temporal file?").arg(item->outputName));
 
       if (QMessageBox::Yes == msgBox.exec())
       {
         QDir downloadDir(m_config.downloadPath);
 
-        if (!QFile::remove(downloadDir.absoluteFilePath(item->url.fileName() + m_config.extension)))
+        if (!QFile::remove(downloadDir.absoluteFilePath(item->outputName + m_config.extension)))
         {
-          const auto message = QString("Unable to remove the file '%1'!").arg(item->url.fileName() + m_config.extension);
+          const auto message = QString("Unable to remove the file '%1'!").arg(item->outputName + m_config.extension);
           QMessageBox::critical(this, "Error!", message, QMessageBox::Button::Ok);
         }
       }
