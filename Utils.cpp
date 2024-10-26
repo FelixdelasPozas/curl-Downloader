@@ -42,12 +42,14 @@ QString Utils::ItemInformation::toText() const
   QString text;
   text += QString("File: %1\n").arg(url.toString());
   if(!server.isEmpty())
+  {
     text += QString("Proxy server: %1:%2\n").arg(server).arg(port);
+    text += QString("Protocol: %1\n").arg(protocol == Protocol::SOCKS4 ? "SOCKS4": (protocol == Protocol::NONE) ? "None":"SOCKS5");
+  }
   else
-    text += QString("Proxy server: None");
+    text += QString("Proxy server: None\n");
 
-  if(!server.isEmpty()) text += QString("Protocol: %1").arg(protocol == Protocol::SOCKS4 ? "SOCKS4": (protocol == Protocol::NONE) ? "None":"SOCKS5");
-  text += "Output name: " + outputName + '\n';
+  text += "Output name: " + outputName;
   
   return text;
 }
