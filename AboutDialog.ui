@@ -382,6 +382,12 @@ Qt Framework</string>
             <property name="text">
              <string/>
             </property>
+            <property name="pixmap">
+             <pixmap resource="resources/resources.qrc">:/Downloader/Logo-ubuntu.svg</pixmap>
+            </property>
+            <property name="scaledContents">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item>

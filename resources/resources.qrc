@@ -19,5 +19,6 @@
 	<file>pause.svg</file>
 	<file>curl-symbol.png</file>
 	<file>Ubuntu-R.ttf</file>
+	<file>Logo-ubuntu.svg</file>
   </qresource>
 </RCC>

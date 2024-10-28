@@ -41,6 +41,7 @@ const QString DOWNLOAD_FOLDER_KEY = "Download folder";
 const QString WAIT_TIME_KEY = "Wait time";
 const QString TEMPORAL_EXTENSION = "Temporal extension";
 const QString GEOMETRY = "Window geometry";
+const QString STATE = "GUI State";
 
 //----------------------------------------------------------------------------
 MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
@@ -296,7 +297,13 @@ void MainWindow::loadSettings()
   {
     auto geometry = settings.value(GEOMETRY).toByteArray();
     restoreGeometry(geometry);
-  }  
+  }
+
+  if(settings.contains(STATE))
+  {
+    auto state = settings.value(STATE).toByteArray();
+    restoreState(state);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -312,6 +319,7 @@ void MainWindow::saveSettings()
   settings.setValue(WAIT_TIME_KEY, m_config.waitSeconds);
   settings.setValue(TEMPORAL_EXTENSION, m_config.extension);
   settings.setValue(GEOMETRY, saveGeometry());
+  settings.setValue(STATE, saveState());
   settings.sync();
 }
 
