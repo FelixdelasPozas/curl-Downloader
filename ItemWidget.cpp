@@ -29,10 +29,6 @@
 #include <QMessageBox>
 #include <QFile>
 #include <QFontDatabase>
-#include <QTimer>
-
-// C++
-#include <unistd.h> // sleep
 
 int ItemWidget::FONT_ID = -1;
 
@@ -168,19 +164,21 @@ void ItemWidget::onFinished(int code , QProcess::ExitStatus status)
     m_finished = (code == 0);
     setStatus(Status::RETRYING);
     m_console.addText(QString("Retrying in %1 seconds...\n").arg(m_config.waitSeconds));
-    QTimer::singleShot(5000, this, SLOT(startProcess()));
+    m_timer.singleShot(5000, this, SLOT(startProcess()));
   }
   else
   {
     if(m_aborted)
     {
       setStatus(Status::ABORTED);
+      m_timer.stop();
 
       emit cancelled();
     }
     else
     {
       setStatus(Status::FINISHED);
+      m_timer.stop();
 
       emit finished();
     }
@@ -368,7 +366,8 @@ void ItemWidget::mousePressEvent(QMouseEvent *)
       const auto previousName = m_item->outputName;
       m_item->outputName = item->outputName;
 
-      // force process restart.
+      // force process restart and stop timer in case is already retrying
+      m_timer.stop(); 
       m_process.terminate();
       m_process.kill();
       m_process.waitForFinished();

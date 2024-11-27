@@ -32,10 +32,6 @@
 #include <QDir>
 #include <QtWinExtras/QWinTaskbarProgress>
 
-// C++ 
-#include <cassert>
-#include <exception>
-
 const QString CURL_LOCATION_KEY = "Curl executable location";
 const QString DOWNLOAD_FOLDER_KEY = "Download folder";
 const QString WAIT_TIME_KEY = "Wait time";
@@ -51,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
 , m_taskbarButton{nullptr}
 {
   setupUi(this);
-
+  setMinimumWidth(600);
   connectSignals();
 
   loadSettings();
@@ -128,7 +124,7 @@ void MainWindow::addItem()
   connect(itemWidget, SIGNAL(cancelled()), this, SLOT(onProcessFinished()));
   connect(itemWidget, SIGNAL(finished()), this, SLOT(onProcessFinished()));
   connect(itemWidget, SIGNAL(progress()), this, SLOT(onWidgetProgress()));
-
+  
   m_scrollLayout->insertWidget(m_scrollLayout->count()-1, itemWidget);
   onWidgetProgress();
 }
@@ -177,9 +173,9 @@ void MainWindow::onProcessFinished()
     auto widgetIt = m_widgets.begin() + std::distance(m_items.cbegin(), itemIt);
     m_widgets.erase(widgetIt);
     m_items.erase(itemIt);
-
+    
     m_scrollLayout->removeWidget(widget);
-    delete widget;
+    widget->deleteLater();
 
     // rename and remove only if QProcess no longer exists and curl has finished.
     if(hasFinished)
@@ -204,8 +200,12 @@ void MainWindow::onProcessFinished()
       if (QMessageBox::Yes == msgBox.exec())
       {
         QDir downloadDir(m_config.downloadPath);
-
-        if (!QFile::remove(downloadDir.absoluteFilePath(item->outputName + m_config.extension)))
+        if(!QFile::exists(downloadDir.absoluteFilePath(item->outputName + m_config.extension)))
+        {
+          const auto message = QString("Unable to find the file '%1'!").arg(item->outputName + m_config.extension);
+          QMessageBox::critical(this, "Error!", message, QMessageBox::Button::Ok);
+        }
+        else if (!QFile::remove(downloadDir.absoluteFilePath(item->outputName + m_config.extension)))
         {
           const auto message = QString("Unable to remove the file '%1'!").arg(item->outputName + m_config.extension);
           QMessageBox::critical(this, "Error!", message, QMessageBox::Button::Ok);

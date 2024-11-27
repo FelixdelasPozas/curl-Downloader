@@ -28,6 +28,7 @@
 // Qt
 #include <QWidget>
 #include <QProcess>
+#include <QTimer>
 
 class AddItemDialog;
 
@@ -97,7 +98,7 @@ class ItemWidget
     void cancelled();
     void finished();
     void progress();
-
+    
   protected:
     virtual void paintEvent(QPaintEvent *event) override;
     virtual void mousePressEvent(QMouseEvent *) override;
@@ -181,6 +182,7 @@ class ItemWidget
     float m_progressVal;                  /** progress value in [0,100] */
     ConsoleOutputDialog m_console;        /** console text dialog. */
     QProcess m_process;                   /** curl process. */
+    QTimer m_timer;                       /** Retry timer. */
 };
 
 #endif
