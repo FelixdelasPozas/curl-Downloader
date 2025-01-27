@@ -27,6 +27,7 @@ endif (CMAKE_BUILD_TYPE MATCHES Debug)
 
 if(DEFINED MINGW)
   configure_file("${PROJECT_SOURCE_DIR}/main.rc.in" "${PROJECT_BINARY_DIR}/main.rc")
+  configure_file("${PROJECT_SOURCE_DIR}/installer/script.iss.in" "${PROJECT_BINARY_DIR}/script.iss")
   set(SOURCE_FILES ${SOURCE_FILES} ${CMAKE_CURRENT_BINARY_DIR}/main.rc)
   set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -O coff -o <OBJECT> -i <SOURCE>")
   enable_language(RC)
@@ -43,18 +44,18 @@ include_directories(
   ${CMAKE_BINARY_DIR}          # Generated .h files
   ${CMAKE_CURRENT_BINARY_DIR}  # For wrap/ui files
   ${Qt5Widgets_INCLUDE_DIRS}
-	${Qt5Gui_INCLUDE_DIRS}
+  ${Qt5Gui_INCLUDE_DIRS}
   ${Qt5Multimedia_INCLUDE_DIRS}
-	${Qt5Core_INCLUDE_DIRS}
-	${Qt5WinExtras_INCLUDE_DIRS}	
+  ${Qt5Core_INCLUDE_DIRS}
+  ${Qt5WinExtras_INCLUDE_DIRS}	
   )
 
 set (SOURCE_FILES
   ${SOURCE_FILES}
-	${RESOURCES}
-	main.cpp
-	AboutDialog.cpp
-	MainWindow.cpp
+  ${RESOURCES}
+  main.cpp
+  AboutDialog.cpp
+  MainWindow.cpp
   AddItemDialog.cpp
   ConfigurationDialog.cpp
   ItemWidget.cpp
@@ -63,14 +64,14 @@ set (SOURCE_FILES
 )
   
 set (EXTERNAL_LIBRARIES
-	Qt5::Core
-	Qt5::Gui
-	Qt5::Widgets
-	Qt5::Multimedia
+  Qt5::Core
+  Qt5::Gui
+  Qt5::Widgets
+  Qt5::Multimedia
   Qt5::Network
-	Qt5::WinExtras
+  Qt5::WinExtras
 )
   
-add_executable(curlDownloader WIN32 ${SOURCE_FILES})
-target_link_libraries (curlDownloader ${EXTERNAL_LIBRARIES})
-qt5_use_modules(curlDownloader Core Gui Widgets Multimedia WinExtras)
+add_executable(CurlDownloader WIN32 ${SOURCE_FILES})
+target_link_libraries (CurlDownloader ${EXTERNAL_LIBRARIES})
+qt5_use_modules(CurlDownloader Core Gui Widgets Multimedia WinExtras)

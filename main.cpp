@@ -51,7 +51,7 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
 
   // allow only one instance
   QSharedMemory guard;
-  guard.setKey("curlDownloader");
+  guard.setKey("CurlDownloader");
 
   if (!guard.create(1))
   {
