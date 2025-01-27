@@ -56,7 +56,7 @@ ItemWidget::ItemWidget(const Utils::Configuration &config, Utils::ItemInformatio
 
   setToolTip(m_item->toText());
 
-  m_filename->setText("<p style='white-space:pre'><b>" + m_item->outputName + "</b>");
+  m_filename->setText(m_item->outputName);
   updateWidget(0, "??", "--:--:--");
   setStatus(Status::STARTING);
   startProcess();
@@ -74,19 +74,21 @@ void ItemWidget::onNotesButtonPressed()
 //----------------------------------------------------------------------------
 void ItemWidget::onPlayButtonPressed()
 {
-  m_paused = (m_process.state() == QProcess::ProcessState::Running);
+  m_timer.stop();
 
   if(m_paused)
   {
-    stopProcessImplementation();
-    m_playPause->setIcon(QIcon(":/Downloader/play.svg"));
-    setStatus(Status::PAUSED);
+    m_paused = false;
+    startProcess();
+    setStatus(Status::STARTING);
+    m_playPause->setIcon(QIcon(":/Downloader/pause.svg"));
   }
   else
   {
-    startProcess();
-    m_playPause->setIcon(QIcon(":/Downloader/pause.svg"));
-    setStatus(Status::STARTING);
+    m_paused = true;
+    stopProcessImplementation();
+    setStatus(Status::PAUSED);
+    m_playPause->setIcon(QIcon(":/Downloader/play.svg"));
   }
 }
 
@@ -164,7 +166,7 @@ void ItemWidget::onFinished(int code , QProcess::ExitStatus status)
     m_finished = (code == 0);
     setStatus(Status::RETRYING);
     m_console.addText(QString("Retrying in %1 seconds...\n").arg(m_config.waitSeconds));
-    m_timer.singleShot(5000, this, SLOT(startProcess()));
+    m_timer.singleShot(m_config.waitSeconds*1000, this, SLOT(startProcess()));
   }
   else
   {
@@ -249,6 +251,9 @@ void ItemWidget::setStatus(ItemWidget::Status status)
     case Status::PAUSED:
       statusText = QString("<b>Paused</b>");
       break;
+    case Status::ABORTED:
+      statusText = QString("<b><span style=\"color:#aa00aa;\">Aborted</span></b>");
+      break;
   }
 
   m_status->setText(statusText);
@@ -276,15 +281,12 @@ void ItemWidget::startProcess()
   arguments << "--retry-delay" << QString::number(m_config.waitSeconds); // <seconds> Wait time between retries
   arguments << "--globoff"; // Switch off the URL globbing function, parses urls with {}[] chars.  
   arguments << "--output" << m_item->outputName + m_config.extension; // with temporal extension, if any.
-  if(!m_item->server.isEmpty())
+  if(!m_item->server.isEmpty() && (m_item->protocol != Utils::Protocol::NONE))
   {
-    if(m_item->protocol != Utils::Protocol::NONE)
-    {
-      arguments << "--proxy-insecure"; // Do HTTPS proxy connections without verifying the proxy
+    arguments << "--proxy-insecure"; // Do HTTPS proxy connections without verifying the proxy
 
-      const auto serverText = QString("%1:%2").arg(m_item->server).arg(m_item->port);
-      arguments << protocols.at(static_cast<int>(m_item->protocol)) << serverText;
-    }
+    const auto serverText = QString("%1:%2").arg(m_item->server).arg(m_item->port);
+    arguments << protocols.at(static_cast<int>(m_item->protocol)) << serverText;
   }
 
   // Continue if possible
@@ -293,6 +295,7 @@ void ItemWidget::startProcess()
 
   arguments << "--url" << m_item->url.toString();
 
+  m_paused = false;
   m_process.setArguments(arguments);
   m_process.start();
   m_process.setTextModeEnabled(true);  
@@ -302,6 +305,22 @@ void ItemWidget::startProcess()
 //----------------------------------------------------------------------------
 void ItemWidget::stopProcess()
 {
+  int remainingTime = 0;
+  bool timerIsActive = m_timer.isActive();
+
+  auto reactivateTimer = [&]()
+  {
+    if(!timerIsActive) return;
+    m_timer.setInterval(remainingTime);
+    m_timer.start();
+  };
+
+  if(timerIsActive)
+  {
+    remainingTime = m_timer.remainingTime();
+    m_timer.stop();
+  }
+
   if(!m_aborted)
   {
     const auto filename = m_item->outputName;
@@ -312,7 +331,10 @@ void ItemWidget::stopProcess()
     msgBox.setText(QString("Do you want to cancel the download of '%1'?").arg(filename));
 
     if (msgBox.exec() == QMessageBox::No)
+    {
+      reactivateTimer();
       return;
+    }
 
     m_cancel->setEnabled(false);
     m_playPause->setEnabled(false);
@@ -328,6 +350,8 @@ void ItemWidget::stopProcess()
       stopProcessImplementation();
     }
   }
+  else
+    reactivateTimer();
 }
 
 //----------------------------------------------------------------------------
@@ -381,7 +405,7 @@ void ItemWidget::mousePressEvent(QMouseEvent *)
         }
         else
         {
-          m_filename->setText("<p style='white-space:pre'><b>" + m_item->outputName + "</b>");
+          m_filename->setText(m_item->outputName);
           m_console.setWindowTitle(tr("%1 process console output.").arg(m_item->outputName));
         }
       }
@@ -412,7 +436,9 @@ void ItemWidget::applyFont()
     const QString family = QFontDatabase::applicationFontFamilies(FONT_ID).at(0);   
     QFont font(family);
 
-    for(auto w: {m_filename, m_remain, m_status, m_speed, m_progress })
+    QList<QLabel*> widgets = {m_filename, m_remain, m_status, m_speed, m_progress};
+
+    for(auto w: widgets)
     {
       auto wFont = w->font();
       font.setPointSize(wFont.pointSize());

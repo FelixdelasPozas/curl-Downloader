@@ -21,7 +21,10 @@
 #include <AboutDialog.h>
 #include <Utils.h>
 
-const QString AboutDialog::VERSION = QString("version 1.3.3");
+// Qt
+#include <QDesktopServices>
+
+const QString AboutDialog::VERSION = QString("version 1.3.4");
 
 //-----------------------------------------------------------------
 AboutDialog::AboutDialog(const Utils::Configuration &config, QWidget *parent, Qt::WindowFlags flags)
@@ -40,4 +43,7 @@ AboutDialog::AboutDialog(const Utils::Configuration &config, QWidget *parent, Qt
   auto curlVersion = Utils::curlExecutableVersion(config.curlPath);
   if(curlVersion.isEmpty()) curlVersion = "Unknown";
   m_curlVersion->setText(tr("version %1").arg(curlVersion));
+
+  QObject::connect(m_kofiLabel, &Utils::ClickableHoverLabel::clicked,
+                   [this](){ QDesktopServices::openUrl(QUrl{"https://ko-fi.com/felixdelaspozas"}); });
 }

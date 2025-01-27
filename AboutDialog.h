@@ -25,6 +25,7 @@
 
 // Qt
 #include <QDialog>
+#include <QLabel>
 
 namespace Utils
 {
