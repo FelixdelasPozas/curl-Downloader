@@ -289,7 +289,11 @@ void MainWindow::loadSettings()
   Utils::Configuration config(curlLocation, downloadFolder, waitTime, extension);
 
   if(!config.isValid())
+  {
     showConfigurationDialog();
+    loadSettings();
+    return;
+  }
   else
     m_config = config;
 

@@ -24,7 +24,8 @@ The following libraries are required:
 * [Qt 5 opensource framework](http://www.qt.io/).
 
 # Install
-The only current option is build from source as binaries are not provided. 
+
+Curl Downloader is available for Windows 7 onwards. You can download the latest release from the [releases page](https://github.com/FelixdelasPozas/curl-Downloader/releases). 
 
 # Screenshots
 Main dialog with a console output dialog of one of the files being downloaded. The progress of each download is represented in the green background. 
@@ -47,7 +48,7 @@ The application can be minimized to the tray area. If visible the global progres
 
 # Repository information
 
-**Version**: 1.3.3
+**Version**: 1.3.4
 
 **Status**: finished
 
@@ -55,7 +56,7 @@ The application can be minimized to the tray area. If visible the global progres
 
 | Language                     |files          |blank        |comment           |code  |
 |:-----------------------------|--------------:|------------:|-----------------:|-----:|
-| C++                          |   8           |  230        |  202             | 943  |
-| C/C++ Header                 |   7           |  137        |  398             | 269  |
-| CMake                        |   1           |   12        |    3             |  61  |
-| **Total**                    | **16**        | **379**     | **603**          | **1273** |
+| C++                          |   8           |  236        |  203             | 972  |
+| C/C++ Header                 |   7           |  151        |  433             | 332  |
+| CMake                        |   1           |   12        |    3             |  62  |
+| **Total**                    | **16**        | **399**     | **639**          | **1366** |
