@@ -26,8 +26,7 @@
 #include <QApplication>
 #include <QProcess>
 #include <QDir>
-
-
+											 
 //----------------------------------------------------------------------------
 bool Utils::ItemInformation::isValid() const
 {

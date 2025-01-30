@@ -25,7 +25,7 @@ The following libraries are required:
 
 # Install
 
-Curl Downloader is available for Windows 7 onwards. You can download the latest release from the [releases page](https://github.com/FelixdelasPozas/curl-Downloader/releases). 
+Curl Downloader is available for Windows 7 onwards. You can download the latest release from the [releases page](https://github.com/FelixdelasPozas/curl-Downloader/releases). Neither the application or the installer are digitally signed so the system will ask for approval before running it the first time.
 
 # Screenshots
 Main dialog with a console output dialog of one of the files being downloaded. The progress of each download is represented in the green background. 
