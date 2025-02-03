@@ -4,8 +4,8 @@ project(Downloader)
 
 # Version Number
 set (VERSION_MAJOR 1)
-set (VERSION_MINOR 3)
-set (VERSION_PATCH 5)
+set (VERSION_MINOR 4)
+set (VERSION_PATCH 0)
 
 # Find the QtWidgets library
 find_package(Qt6 COMPONENTS Core Gui Widgets Multimedia Network)
@@ -19,8 +19,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Widgets_EXECUTABLE_COMPILE_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Mutimedia_EXECUTABLE_COMPILE_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6WinExtras_EXECUTABLE_COMPILE_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Network_EXECUTABLE_COMPILE_FLAGS}")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -m64 -Wall -mwindows -municode -Wno-deprecated")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -m64 -Wall -mconsole -municode -Wno-deprecated")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -m64 -Wall -mwindows -municode -Wno-deprecated")
+
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
   set(CORE_EXTERNAL_LIBS ${CORE_EXTERNAL_LIBS} ${QT_QTTEST_LIBRARY})

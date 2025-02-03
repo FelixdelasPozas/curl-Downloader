@@ -239,7 +239,10 @@ void MainWindow::connectSignals()
 void MainWindow::quitApplication()
 {
   m_needsExit = true;
-  close();
+  if(this->isVisible())
+    close();
+  else
+    closeEvent(nullptr);
 }
 
 //----------------------------------------------------------------------------
@@ -254,7 +257,7 @@ void MainWindow::closeEvent(QCloseEvent *e)
   }
   else
   {
-    QMainWindow::closeEvent(e);
+    if(e) QMainWindow::closeEvent(e);
     QApplication::exit(0);
   }
 }
@@ -264,6 +267,7 @@ void MainWindow::showEvent(QShowEvent *e)
 {
   QMainWindow::showEvent(e);
   m_taskbarButton.restart();
+  onWidgetProgress(); // force set value.
 }
 
 //----------------------------------------------------------------------------
@@ -314,7 +318,7 @@ void MainWindow::setupTrayIcon()
 {
   auto menu = new QMenu(tr("Menu"));
 
-  auto showAction = new QAction(QIcon(":/Downloader/file-download.svg"), tr("Restore..."));
+  auto showAction = new QAction(QIcon(":/Downloader/maximize.svg"), tr("Restore..."));
   connect(showAction, SIGNAL(triggered(bool)), this, SLOT(onTrayActivated()));
 
   auto addFile = new QAction(QIcon(":/Downloader/add.svg"), tr("Add item..."));

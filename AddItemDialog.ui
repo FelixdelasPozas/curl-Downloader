@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>601</width>
-    <height>173</height>
+    <height>184</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>601</width>
-    <height>173</height>
+    <height>184</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>601</width>
-    <height>173</height>
+    <height>184</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -67,7 +67,6 @@
        </property>
        <property name="font">
         <font>
-         <weight>75</weight>
          <bold>true</bold>
         </font>
        </property>
@@ -76,9 +75,6 @@
        </property>
        <property name="currentIndex">
         <number>2</number>
-       </property>
-       <property name="sizeAdjustPolicy">
-        <enum>QComboBox::AdjustToMinimumContentsLength</enum>
        </property>
        <property name="frame">
         <bool>true</bool>
@@ -155,10 +151,10 @@
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
      </property>
     </widget>
    </item>

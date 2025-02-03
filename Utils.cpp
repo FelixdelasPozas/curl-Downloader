@@ -162,5 +162,5 @@ std::unique_ptr<QSettings> Utils::applicationSettings()
     return std::make_unique<QSettings>(INI_FILENAME, QSettings::IniFormat);
   }
 
-  return std::make_unique<QSettings>("Felix de las Pozas Alvarez", "TrayWeather");
+  return std::make_unique<QSettings>("Felix de las Pozas Alvarez", "curlDownloader");
 }

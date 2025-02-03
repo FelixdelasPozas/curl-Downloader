@@ -24,6 +24,9 @@
 #include <QMainWindow>
 #include <QImage>
 
+// C++
+#include <cmath>
+
 #ifdef QTASKBAR_WIN
 //-------------------------------------------------------------------
 QTaskBarButton::QTaskBarButton(QWidget *mainWindow)
@@ -83,9 +86,7 @@ void QTaskBarButton::setState(State state)
 	}
 
 	if (S_OK == pITask->SetProgressState((HWND)_winId, flag))
-	{
 		_state = state;
-	}
 }
 
 //-------------------------------------------------------------------
@@ -96,9 +97,7 @@ void QTaskBarButton::setValue(int value)
 
 	int completed = value - _minimum, total = _maximum - _minimum;
 	if (completed < 0 || total <= 0)
-	{
 		return;
-	}
 
 	if (S_OK == pITask->SetProgressValue((HWND)_winId, completed, total))
 	{
@@ -112,6 +111,7 @@ void QTaskBarButton::restart()
 {
 	shutdown();
 	initialize();
+	_value = 0;
 	if(!m_pixmap.isNull())
 		setOverlayIconImplementation();
 }
@@ -185,13 +185,13 @@ void QTaskBarButton::reset()
 //-------------------------------------------------------------------
 void QTaskBarButton::setMaximum(int maximum)
 {
-	_maximum = maximum;
+	_maximum = std::max(_minimum,maximum);
 }
 
 //-------------------------------------------------------------------
 void QTaskBarButton::setMinimum(int minimum)
 {
-	_minimum = minimum;
+	_minimum = std::min(minimum, _maximum);
 }
 
 //-------------------------------------------------------------------

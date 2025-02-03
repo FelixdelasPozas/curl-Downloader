@@ -9,10 +9,12 @@ curl Downloader
 - [Repository information](#repository-information)
 
 # Description
-Simple curl frontend focused on downloading files using SOCK4/SOCK5 protocols via proxy servers with infinite retries. 
+Simple curl frontend focused on downloading files using SOCK4/SOCK5 protocols via proxy servers with infinite retries. If the proxy server stops working a new one can be entered by clicking in the item download bar in the main dialog. The download will resume with the new proxy server.
+
+If you want to support this project you can do it on [Ko-fi](https://ko-fi.com/felixdelaspozas).
 
 ## Options
-Instead of using libcurl an external curl executable is needed and its location must be entered in the configuration dialog, with the download folder and the time between retries. When adding a new item only the download url, proxy server and port of the item can be configured, no other curl options are available.
+Instead of using libcurl an external curl executable is needed and its location must be entered in the configuration dialog, with the download folder, the time between retries and the temporal extension to use while downloading. When adding a new item only the download url, proxy server and port of the item can be configured, no other curl options are available.
 
 # Compilation requirements
 ## To build the tool:
@@ -22,6 +24,8 @@ Instead of using libcurl an external curl executable is needed and its location 
 ## External dependencies
 The following libraries are required:
 * [Qt 5 opensource framework](http://www.qt.io/).
+
+You'll need to have a curl executable for windows, you can download one from [here](https://curl.se/windows/).
 
 # Install
 
@@ -34,7 +38,7 @@ For each download a widget with the name, status (downloading, retrying, etc...)
 
 ![maindialog](https://github.com/FelixdelasPozas/curl-Downloader/assets/12167134/75049dbc-cc80-413b-a9cf-ff700c8cee01)
 
-Add item dialog. If the server is left empty the file will be downloaded using no proxy. Otherwise the protocols SOCKS4 and SOCKS5 are available for download. Once a file is being downloaded the server, port and output name on local disk can be changed by right-clicking the item information widget in the main dialog. 
+Add item dialog. If the server is left empty the file will be downloaded using no proxy. Otherwise the protocols SOCKS4 and SOCKS5 are available for download. Once a file is being downloaded the server, port and output name on local disk can be changed by right-clicking the item information widget in the main dialog. The proxy server can be changed by clicking in the download bar of the item and entering a new one. The download will resume using the new one.
 
 ![additem](https://github.com/user-attachments/assets/cd78db32-2cc1-47a5-ae4b-a36cc210a717)
 
@@ -54,9 +58,9 @@ The application can be minimized to the tray area. If visible the global progres
 
 **cloc statistics**
 
-| Language                     |files          |blank        |comment           |code  |
-|:-----------------------------|--------------:|------------:|-----------------:|-----:|
-| C++                          |   9           |  272        |  247             | 1145 |
-| C/C++ Header                 |   8           |  174        |  519             | 391  |
-| CMake                        |   1           |   12        |    4             |  61  |
-| **Total**                    | **18**        | **458**     | **770**          | **1597** |
+| Language      |files      |blank      |comment    |code      |
+|:--------------|----------:|----------:|----------:|---------:|
+| C++           |   9       |  273      |  248      | 1147     |
+| C/C++ Header  |   8       |  174      |  519      | 391      |
+| CMake         |   1       |   13      |    3      |  61      |
+| **Total**     | **18**    | **460**   | **770**   | **1599** |

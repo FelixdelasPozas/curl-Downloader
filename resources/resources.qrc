@@ -11,7 +11,7 @@
 	<file>warning.svg</file>
 	<file>notes.svg</file>
 	<file>exit.svg</file>
-	<file>file-download.svg</file>
+	<file>maximize.svg</file>
 	<file>folder.svg</file>
 	<file>info.svg</file>
 	<file>settings.svg</file>
@@ -21,5 +21,6 @@
 	<file>Ubuntu-R.ttf</file>
 	<file>Logo-ubuntu.svg</file>
 	<file>kofi_logo.png</file>
+	<file>minimize.svg</file>
   </qresource>
 </RCC>
