@@ -30,7 +30,7 @@
 #include <QMenu>
 #include <QFile>
 #include <QDir>
-#include <QtWinExtras/QWinTaskbarProgress>
+#include <QDebug>
 
 const QString CURL_LOCATION_KEY = "Curl executable location";
 const QString DOWNLOAD_FOLDER_KEY = "Download folder";
@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
 : QMainWindow(parent, flags)
 , m_needsExit{false}
 , m_trayIcon{new QSystemTrayIcon(QIcon(":/Downloader/download-bold.svg"), this)}
-, m_taskbarButton{nullptr}
+, m_taskbarButton{this}
 {
   setupUi(this);
   setMinimumWidth(600);
@@ -82,9 +82,6 @@ MainWindow::~MainWindow()
   m_items.clear();
 
   saveSettings();
-
-  if(m_taskbarButton)
-    m_taskbarButton->deleteLater();
 }
 
 //----------------------------------------------------------------------------
@@ -262,50 +259,35 @@ void MainWindow::closeEvent(QCloseEvent *e)
   }
 }
 
-//-----------------------------------------------------------------
-void MainWindow::showEvent(QShowEvent* e)
+//----------------------------------------------------------------------------
+void MainWindow::showEvent(QShowEvent *e)
 {
   QMainWindow::showEvent(e);
-
-  if(!m_taskbarButton)
-  {
-    m_taskbarButton = new QWinTaskbarButton(this);
-    m_taskbarButton->setWindow(this->windowHandle());
-    m_taskbarButton->progress()->setRange(0, 100);
-    m_taskbarButton->progress()->setVisible(true);
-    m_taskbarButton->progress()->setValue(0);
-  }
+  m_taskbarButton.restart();
 }
+
 //----------------------------------------------------------------------------
 void MainWindow::loadSettings()
 {
-  QSettings settings("Felix de las Pozas Alvarez", "curlDownloader");
+  auto settings = Utils::applicationSettings();
 
-  auto curlLocation = settings.value(CURL_LOCATION_KEY).toString();
-  auto downloadFolder = settings.value(DOWNLOAD_FOLDER_KEY).toString();
-  auto waitTime = settings.value(WAIT_TIME_KEY, 5).toUInt();
-  auto extension = settings.value(TEMPORAL_EXTENSION).toString();
+  auto curlLocation = settings->value(CURL_LOCATION_KEY).toString();
+  auto downloadFolder = settings->value(DOWNLOAD_FOLDER_KEY).toString();
+  auto waitTime = settings->value(WAIT_TIME_KEY, 5).toUInt();
+  auto extension = settings->value(TEMPORAL_EXTENSION).toString();
 
   Utils::Configuration config(curlLocation, downloadFolder, waitTime, extension);
+  m_config = config;
 
-  if(!config.isValid())
+  if(settings->contains(GEOMETRY))
   {
-    showConfigurationDialog();
-    loadSettings();
-    return;
-  }
-  else
-    m_config = config;
-
-  if(settings.contains(GEOMETRY))
-  {
-    auto geometry = settings.value(GEOMETRY).toByteArray();
+    auto geometry = settings->value(GEOMETRY).toByteArray();
     restoreGeometry(geometry);
   }
 
-  if(settings.contains(STATE))
+  if(settings->contains(STATE))
   {
-    auto state = settings.value(STATE).toByteArray();
+    auto state = settings->value(STATE).toByteArray();
     restoreState(state);
   }
 }
@@ -316,15 +298,15 @@ void MainWindow::saveSettings()
   if(!m_config.isValid())
     return;
 
-  QSettings settings("Felix de las Pozas Alvarez", "curlDownloader");
+  auto settings = Utils::applicationSettings();
 
-  settings.setValue(CURL_LOCATION_KEY, m_config.curlPath);
-  settings.setValue(DOWNLOAD_FOLDER_KEY, m_config.downloadPath);
-  settings.setValue(WAIT_TIME_KEY, m_config.waitSeconds);
-  settings.setValue(TEMPORAL_EXTENSION, m_config.extension);
-  settings.setValue(GEOMETRY, saveGeometry());
-  settings.setValue(STATE, saveState());
-  settings.sync();
+  settings->setValue(CURL_LOCATION_KEY, m_config.curlPath);
+  settings->setValue(DOWNLOAD_FOLDER_KEY, m_config.downloadPath);
+  settings->setValue(WAIT_TIME_KEY, m_config.waitSeconds);
+  settings->setValue(TEMPORAL_EXTENSION, m_config.extension);
+  settings->setValue(GEOMETRY, saveGeometry());
+  settings->setValue(STATE, saveState());
+  settings->sync();
 }
 
 //----------------------------------------------------------------------------
@@ -382,6 +364,8 @@ void MainWindow::onWidgetProgress()
   else
     m_trayIcon->setToolTip(tr("No downloads."));
 
-  if(m_taskbarButton)
-    m_taskbarButton->progress()->setValue(static_cast<int>(progressValue));
+  m_taskbarButton.setValue(static_cast<int>(progressValue));
+
+  const auto state = progressValue == 0 ? QTaskBarButton::State::Invisible : QTaskBarButton::State::Normal;
+  m_taskbarButton.setState(state);
 }

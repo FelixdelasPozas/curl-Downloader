@@ -8,18 +8,19 @@ set (VERSION_MINOR 3)
 set (VERSION_PATCH 5)
 
 # Find the QtWidgets library
-find_package(Qt5 COMPONENTS Core Gui Widgets Multimedia Network WinExtras)
+find_package(Qt6 COMPONENTS Core Gui Widgets Multimedia Network)
 
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Mutimedia_EXECUTABLE_COMPILE_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5WinExtras_EXECUTABLE_COMPILE_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Network_EXECUTABLE_COMPILE_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -m64 -Wall -mwindows -municode -Wno-deprecated")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Core_EXECUTABLE_COMPILE_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Widgets_EXECUTABLE_COMPILE_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Mutimedia_EXECUTABLE_COMPILE_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6WinExtras_EXECUTABLE_COMPILE_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Network_EXECUTABLE_COMPILE_FLAGS}")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -m64 -Wall -mwindows -municode -Wno-deprecated")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -m64 -Wall -mconsole -municode -Wno-deprecated")
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
   set(CORE_EXTERNAL_LIBS ${CORE_EXTERNAL_LIBS} ${QT_QTTEST_LIBRARY})
@@ -33,7 +34,7 @@ if(DEFINED MINGW)
   enable_language(RC)
 endif(DEFINED MINGW)
 
-qt5_add_resources(RESOURCES
+qt6_add_resources(RESOURCES
     resources/resources.qrc
 )
 
@@ -61,17 +62,16 @@ set (SOURCE_FILES
   ItemWidget.cpp
   Utils.cpp
   ConsoleOutputDialog.cpp
+  external/QTaskBarButton.cpp
 )
   
 set (EXTERNAL_LIBRARIES
-  Qt5::Core
-  Qt5::Gui
-  Qt5::Widgets
-  Qt5::Multimedia
-  Qt5::Network
-  Qt5::WinExtras
+  Qt6::Core
+  Qt6::Gui
+  Qt6::Widgets
+  Qt6::Multimedia
+  Qt6::Network
 )
   
 add_executable(CurlDownloader WIN32 ${SOURCE_FILES})
 target_link_libraries (CurlDownloader ${EXTERNAL_LIBRARIES})
-qt5_use_modules(CurlDownloader Core Gui Widgets Multimedia WinExtras)

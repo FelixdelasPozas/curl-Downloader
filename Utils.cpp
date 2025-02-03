@@ -25,7 +25,10 @@
 #include <QHostAddress>
 #include <QApplication>
 #include <QProcess>
+#include <QSettings>
 #include <QDir>
+
+const QString INI_FILENAME = "CurlDownloader.ini";
 											 
 //----------------------------------------------------------------------------
 bool Utils::ItemInformation::isValid() const
@@ -150,3 +153,14 @@ void Utils::AutoCloseMessageBox::setCloseTime(const unsigned int seconds)
   m_closeSeconds = seconds;
 }
 
+//----------------------------------------------------------------------------
+std::unique_ptr<QSettings> Utils::applicationSettings()
+{
+  QDir applicationDir{QCoreApplication::applicationDirPath()};
+  if(applicationDir.exists(INI_FILENAME))
+  {
+    return std::make_unique<QSettings>(INI_FILENAME, QSettings::IniFormat);
+  }
+
+  return std::make_unique<QSettings>("Felix de las Pozas Alvarez", "TrayWeather");
+}

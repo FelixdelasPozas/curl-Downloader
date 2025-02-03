@@ -23,8 +23,11 @@
 
 // Qt
 #include <QDesktopServices>
+#include <QtGlobal>
+#include <QDateTime>
 
 const QString AboutDialog::VERSION = QString("version 1.3.5");
+const QString COPYRIGHT{"Copyright (c) 2024-%1 Félix de las Pozas Álvarez"};
 
 //-----------------------------------------------------------------
 AboutDialog::AboutDialog(const Utils::Configuration &config, QWidget *parent, Qt::WindowFlags flags)
@@ -40,11 +43,14 @@ AboutDialog::AboutDialog(const Utils::Configuration &config, QWidget *parent, Qt
   m_compilationDate->setText(tr("Compiled on ") + compilation_date + compilation_time);
   m_version->setText(VERSION);
 
-  QString curlVersion = tr("Unknown");
+  QString curlVersion = tr("unknown");
   if(config.isValid())
     curlVersion = Utils::curlExecutableVersion(config.curlPath);
-
   m_curlVersion->setText(tr("version %1").arg(curlVersion));
+
+  m_qtVersion->setText(tr("version %1").arg(qVersion()));
+  m_copy->setText(COPYRIGHT.arg(QDateTime::currentDateTime().date().year()));
+
 
   QObject::connect(m_kofiLabel, &Utils::ClickableHoverLabel::clicked,
                    [this](){ QDesktopServices::openUrl(QUrl{"https://ko-fi.com/felixdelaspozas"}); });

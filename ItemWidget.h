@@ -104,7 +104,7 @@ class ItemWidget
     virtual void mousePressEvent(QMouseEvent *) override;
 
   private: 
-    enum class Status: char { STARTING = 0, DOWNLOADING = 1, RETRYING = 2, ERROR = 3, FINISHED = 4, ABORTED = 5, PAUSED = 6 };
+    enum class Status: char { STARTING = 0, DOWNLOADING = 1, RETRYING = 2, ERROR_ = 3, FINISHED = 4, ABORTED = 5, PAUSED = 6 };
 
   private slots:
     /**

@@ -23,11 +23,11 @@
 // Process
 #include "ui_MainWindow.h"
 #include <Utils.h>
+#include <external/QTaskBarButton.h>
 
 // Qt
 #include <QMainWindow>
 #include <QSystemTrayIcon>
-#include <QtWinExtras/QWinTaskbarButton>
 
 class ItemWidget;
 
@@ -120,7 +120,7 @@ class MainWindow
     std::vector<ItemWidget *> m_widgets;           /** list of item widgets. */
     bool m_needsExit;                              /** true if the application has to quit and false to minimize to tray. */
     QSystemTrayIcon *m_trayIcon;                   /** tray icon. */
-    QWinTaskbarButton *m_taskbarButton;            /** taskbar progress button. */
+    QTaskBarButton m_taskbarButton;                /** taskbar progress button. */
 };
 
 #endif

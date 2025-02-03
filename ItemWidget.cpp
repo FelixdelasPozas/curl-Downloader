@@ -119,7 +119,7 @@ void ItemWidget::onErrorOcurred(QProcess::ProcessError error)
       break;
   }
 
-  setStatus(Status::ERROR);
+  setStatus(Status::ERROR_);
   m_console.addText("Process " + errorMessage + "\n");
 }
 
@@ -236,7 +236,7 @@ void ItemWidget::setStatus(ItemWidget::Status status)
     case Status::DOWNLOADING:
       statusText = QString("<b>Downloading</b>");
       break;
-    case Status::ERROR:
+    case Status::ERROR_:
       statusText = QString("<b><span style=\"color:#aa0000;\">Error</span></b>");
       break;
     case Status::RETRYING:
