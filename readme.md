@@ -23,7 +23,7 @@ Instead of using libcurl an external curl executable is needed and its location 
 
 ## External dependencies
 The following libraries are required:
-* [Qt 5 opensource framework](http://www.qt.io/).
+* [Qt Library](http://www.qt.io/).
 
 You'll need to have a curl executable for windows, you can download one from [here](https://curl.se/windows/).
 
