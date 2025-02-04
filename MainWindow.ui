@@ -153,9 +153,6 @@
    </property>
   </action>
   <action name="actionMinimize">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="icon">
     <iconset resource="resources/resources.qrc">
      <normaloff>:/Downloader/minimize.svg</normaloff>:/Downloader/minimize.svg</iconset>
