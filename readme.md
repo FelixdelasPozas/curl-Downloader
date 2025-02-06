@@ -36,7 +36,7 @@ Main dialog with a console output dialog of one of the files being downloaded. T
 
 For each download a widget with the name, status (downloading, retrying, etc...), remaining time, speed (in bytes usually, uses curl units), progress value and buttons to pause/restart the download, show the console output and cancel the download is shown.
 
-![maindialog](https://github.com/FelixdelasPozas/curl-Downloader/assets/12167134/75049dbc-cc80-413b-a9cf-ff700c8cee01)
+![maindialog](https://github.com/user-attachments/assets/abc3013f-749c-461b-8a5b-52db86553002)
 
 Add item dialog. If the server is left empty the file will be downloaded using no proxy. Otherwise the protocols SOCKS4 and SOCKS5 are available for download. Once a file is being downloaded the server, port and output name on local disk can be changed by right-clicking the item information widget in the main dialog. The proxy server can be changed by clicking in the download bar of the item and entering a new one. The download will resume using the new one.
 
