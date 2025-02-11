@@ -33,7 +33,7 @@ Source: "iconengines/*.*"; DestDir: "{app}/iconengines/";
 Source: "imageformats/*.*"; DestDir: "{app}/imageformats/";
 Source: "platforms/*.*"; DestDir: "{app}/platforms/";
 Source: "networkinformation/*.*"; DestDir: "{app}/platforms/";
-
+Source: "styles/*.*"; DestDir: "{app}/platforms/";
 
 [Run]
 Filename: "{app}\CurlDownloader.exe"; Description: "Launch Curl Downloader"; Flags: postinstall nowait skipifsilent unchecked
