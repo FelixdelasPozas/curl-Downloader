@@ -20,6 +20,7 @@
 // Project
 #include <ItemWidget.h>
 #include <AddItemDialog.h>
+#include <curlErrors.h>
 
 // Qt
 #include <QPainter>
@@ -142,7 +143,7 @@ void ItemWidget:: updateWidget(const unsigned int progressValue, const QString &
 //----------------------------------------------------------------------------
 void ItemWidget::onFinished(int code , QProcess::ExitStatus status)
 {
-  QString message = "Process finished with code: " + QString::number(code) + ". Status: ";
+  QString message = "Process finished with code: " + QString::number(code) + " (" + curlErrorCodeToText(code) + ").\nStatus: ";
   switch(status)
   {
     case QProcess::ExitStatus::NormalExit:

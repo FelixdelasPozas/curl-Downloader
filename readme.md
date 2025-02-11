@@ -29,7 +29,9 @@ You'll need to have a curl executable for windows, you can download one from [he
 
 # Install
 
-Curl Downloader is available for Windows 7 onwards. You can download the latest release from the [releases page](https://github.com/FelixdelasPozas/curl-Downloader/releases). Neither the application or the installer are digitally signed so the system will ask for approval before running it the first time.
+Curl Downloader is available for Windows 10 onwards. You can download the latest release from the [releases page](https://github.com/FelixdelasPozas/curl-Downloader/releases). Neither the application or the installer are digitally signed so the system will ask for approval before running it the first time.
+
+The last version compatible with Windows 7 is the version 1.3.5 than can be downloaded [here](https://github.com/FelixdelasPozas/curl-Downloader/releases/tag/1.3.5).
 
 # Screenshots
 Main dialog with a console output dialog of one of the files being downloaded. The progress of each download is represented in the green background. 
@@ -48,11 +50,11 @@ Configuration dialog. The curl executable is checked to ensure the configuration
 
 The application can be minimized to the tray area. If visible the global progress is shown in the taskbar button.
 
-![tray](https://github.com/user-attachments/assets/03537053-d1ca-4ada-b12d-25bf91db6fb8)
+![tray](https://github.com/user-attachments/assets/234d1def-b05f-4b88-aeed-d7d40c31115a)
 
 # Repository information
 
-**Version**: 1.4.0
+**Version**: 1.5.0
 
 **Status**: finished
 
@@ -60,7 +62,7 @@ The application can be minimized to the tray area. If visible the global progres
 
 | Language      |files      |blank      |comment    |code      |
 |:--------------|----------:|----------:|----------:|---------:|
-| C++           |   9       |  273      |  248      | 1147     |
-| C/C++ Header  |   8       |  174      |  519      | 391      |
-| CMake         |   1       |   13      |    3      |  61      |
-| **Total**     | **18**    | **460**   | **770**   | **1599** |
+| C++           |   9       |  273      |  248      | 1148     |
+| C/C++ Header  |   9       |  182      |  535      | 578      |
+| CMake         |   1       |   13      |    3      |  57      |
+| **Total**     | **18**    | **468**   | **786**   | **1783** |

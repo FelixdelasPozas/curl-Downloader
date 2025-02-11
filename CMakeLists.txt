@@ -4,8 +4,8 @@ project(Downloader)
 
 # Version Number
 set (VERSION_MAJOR 1)
-set (VERSION_MINOR 4)
-set (VERSION_PATCH 1)
+set (VERSION_MINOR 5)
+set (VERSION_PATCH 0)
 
 # Find the QtWidgets library
 find_package(Qt6 COMPONENTS Core Gui Widgets Multimedia Network)
@@ -13,6 +13,8 @@ find_package(Qt6 COMPONENTS Core Gui Widgets Multimedia Network)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
+
+string(TIMESTAMP CURRENT_YEAR "%Y")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Core_EXECUTABLE_COMPILE_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Widgets_EXECUTABLE_COMPILE_FLAGS}")

@@ -14,7 +14,7 @@ BEGIN
     VALUE "FileDescription", "curl Downloader"
       VALUE "FileVersion", "@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@"
       VALUE "InternalName", "Downloader"
-      VALUE "LegalCopyright", "(c) Félix de las Pozas Álvarez"
+      VALUE "LegalCopyright", "(c) 2024-@CURRENT_YEAR@ Felix de las Pozas Alvarez"
       VALUE "OriginalFilename", "Downloader"
       VALUE "ProductName", "curl Downloader"
       VALUE "ProductVersion", "@VERSION_MAJOR@.@VERSION_MINOR@.@VERSION_PATCH@"

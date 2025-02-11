@@ -368,8 +368,7 @@ void MainWindow::onWidgetProgress()
   else
     m_trayIcon->setToolTip(tr("No downloads."));
 
-  m_taskbarButton.setValue(static_cast<int>(progressValue));
-
   const auto state = progressValue == 0 ? QTaskBarButton::State::Invisible : QTaskBarButton::State::Normal;
   m_taskbarButton.setState(state);
+  m_taskbarButton.setValue(static_cast<int>(progressValue));
 }
