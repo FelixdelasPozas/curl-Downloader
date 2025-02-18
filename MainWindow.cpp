@@ -189,23 +189,27 @@ void MainWindow::onProcessFinished()
     }
     else
     {
-      QMessageBox msgBox(this);
-      msgBox.setWindowTitle(title);
-      msgBox.setStandardButtons(QMessageBox::Button::Yes|QMessageBox::Button::No);
-      msgBox.setText(QString("The file '%1' has been aborted!\nDo you want to remove the temporal file?").arg(item->outputName));
-
-      if (QMessageBox::Yes == msgBox.exec())
+      const auto temporalFileExists = QDir{m_config.downloadPath}.exists(item->outputName + m_config.extension);
+      if(temporalFileExists)
       {
-        QDir downloadDir(m_config.downloadPath);
-        if(!QFile::exists(downloadDir.absoluteFilePath(item->outputName + m_config.extension)))
+        QMessageBox msgBox(this);
+        msgBox.setWindowTitle(title);
+        msgBox.setStandardButtons(QMessageBox::Button::Yes|QMessageBox::Button::No);
+        msgBox.setText(QString("The file '%1' has been aborted!\nDo you want to remove the temporal file?").arg(item->outputName));
+
+        if (QMessageBox::Yes == msgBox.exec())
         {
-          const auto message = QString("Unable to find the file '%1'!").arg(item->outputName + m_config.extension);
-          QMessageBox::critical(this, "Error!", message, QMessageBox::Button::Ok);
-        }
-        else if (!QFile::remove(downloadDir.absoluteFilePath(item->outputName + m_config.extension)))
-        {
-          const auto message = QString("Unable to remove the file '%1'!").arg(item->outputName + m_config.extension);
-          QMessageBox::critical(this, "Error!", message, QMessageBox::Button::Ok);
+          QDir downloadDir(m_config.downloadPath);
+          if(!QFile::exists(downloadDir.absoluteFilePath(item->outputName + m_config.extension)))
+          {
+            const auto message = QString("Unable to find the file '%1'!").arg(item->outputName + m_config.extension);
+            QMessageBox::critical(this, "Error!", message, QMessageBox::Button::Ok);
+          }
+          else if (!QFile::remove(downloadDir.absoluteFilePath(item->outputName + m_config.extension)))
+          {
+            const auto message = QString("Unable to remove the file '%1'!").arg(item->outputName + m_config.extension);
+            QMessageBox::critical(this, "Error!", message, QMessageBox::Button::Ok);
+          }
         }
       }
     }
