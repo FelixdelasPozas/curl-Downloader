@@ -31,8 +31,6 @@ You'll need to have a curl executable for windows, you can download one from [he
 
 Curl Downloader is available for Windows 10 onwards. You can download the latest release from the [releases page](https://github.com/FelixdelasPozas/curl-Downloader/releases). Neither the application or the installer are digitally signed so the system will ask for approval before running it the first time.
 
-The last version compatible with Windows 7 is the version 1.3.5 than can be downloaded [here](https://github.com/FelixdelasPozas/curl-Downloader/releases/tag/1.3.5).
-
 # Screenshots
 Main dialog with a console output dialog of one of the files being downloaded. The progress of each download is represented in the green background. 
 
