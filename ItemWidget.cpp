@@ -399,7 +399,8 @@ void ItemWidget::mousePressEvent(QMouseEvent *)
 
       if(previousName.compare(m_item->outputName) != 0)
       {
-        if(!QDir(m_config.downloadPath).rename(previousName + m_config.extension, m_item->outputName + m_config.extension))
+        auto itemDir = QDir(m_config.downloadPath);
+        if(itemDir.exists(previousName) && !itemDir.rename(previousName + m_config.extension, m_item->outputName + m_config.extension))
         {
           QMessageBox::critical(this, previousName, QString("Unable to rename file '%1' to '%2'.").arg(previousName).arg(m_item->outputName));
           m_item->outputName = previousName;

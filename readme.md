@@ -52,7 +52,7 @@ The application can be minimized to the tray area. If visible the global progres
 
 # Repository information
 
-**Version**: 1.5.1
+**Version**: 1.5.2
 
 **Status**: finished
 
@@ -60,7 +60,7 @@ The application can be minimized to the tray area. If visible the global progres
 
 | Language      |files      |blank      |comment    |code      |
 |:--------------|----------:|----------:|----------:|---------:|
-| C++           |   9       |  272      |  248      | 1152     |
+| C++           |   9       |  272      |  248      | 1153     |
 | C/C++ Header  |   9       |  182      |  535      | 578      |
 | CMake         |   1       |   14      |    3      |  57      |
-| **Total**     | **18**    | **468**   | **786**   | **1787** |
+| **Total**     | **18**    | **468**   | **786**   | **1788** |
