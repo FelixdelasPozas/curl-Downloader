@@ -23,6 +23,7 @@
 #include <QMessageBox>
 #include <QHostAddress>
 #include <QAbstractSocket>
+#include <QHostAddress>
 
 //----------------------------------------------------------------------------
 AddItemDialog::AddItemDialog(QWidget *parent, Qt::WindowFlags f)
@@ -54,7 +55,7 @@ Utils::ItemInformation* AddItemDialog::getItem() const
   const auto urlText = m_url->text().simplified();
   const auto serverText = m_serverIP->text().simplified().remove(' ');
   const auto portText = m_serverPort->text().simplified().remove(' ');
-  
+
   auto item = new Utils::ItemInformation(QUrl(urlText),
                                          serverText,
                                          portText.toUInt(),
@@ -96,7 +97,7 @@ void AddItemDialog::closeEvent(QCloseEvent *e)
 //----------------------------------------------------------------------------
 void AddItemDialog::onServerTextChanged()
 {
-  const auto enabled = !m_serverIP->text().isEmpty();
+  const auto enabled = !m_serverIP->text().isEmpty() && !QHostAddress(m_serverIP->text()).isNull();
   m_serverPort->setEnabled(enabled);
   m_protocolCombo->setEnabled(enabled);
 }
