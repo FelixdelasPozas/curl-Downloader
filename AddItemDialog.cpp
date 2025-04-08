@@ -51,9 +51,13 @@ void AddItemDialog::setItem(const Utils::ItemInformation *item)
 //----------------------------------------------------------------------------
 Utils::ItemInformation* AddItemDialog::getItem() const
 {
-  auto item = new Utils::ItemInformation(QUrl(m_url->text()),
-                                         m_serverIP->text(),
-                                         m_serverPort->text().toUInt(),
+  const auto urlText = m_url->text().simplified();
+  const auto serverText = m_serverIP->text().simplified().remove(' ');
+  const auto portText = m_serverPort->text().simplified().remove(' ');
+  
+  auto item = new Utils::ItemInformation(QUrl(urlText),
+                                         serverText,
+                                         portText.toUInt(),
                                          static_cast<Utils::Protocol>(m_protocolCombo->currentIndex()), 
                                          m_name->text());
 
