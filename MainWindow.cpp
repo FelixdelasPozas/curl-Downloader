@@ -354,6 +354,7 @@ void MainWindow::onTrayActivated(QSystemTrayIcon::ActivationReason reason)
   {
     showNormal();
     m_trayIcon->hide();
+    onWidgetProgress();
   }
 }
 

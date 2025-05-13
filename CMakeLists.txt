@@ -1,11 +1,11 @@
-cmake_minimum_required (VERSION 3.5.0)
+cmake_minimum_required (VERSION 3.10.0)
 
 project(Downloader)
 
 # Version Number
 set (VERSION_MAJOR 1)
 set (VERSION_MINOR 5)
-set (VERSION_PATCH 3)
+set (VERSION_PATCH 4)
 
 # Find the QtWidgets library
 find_package(Qt6 COMPONENTS Core Gui Widgets Multimedia Network)
