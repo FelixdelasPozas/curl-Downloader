@@ -277,8 +277,10 @@ void ItemWidget::startProcess()
   arguments << "--connect-timeout" << "60"; // Maximum time allowed for connection
   arguments << "--insecure"; // Allow insecure server connections when using SSL
   arguments << "--location"; // Follow redirects
+  arguments << "--show-error"; // Show error even when -s is used
   arguments << "--retry" << "999"; // <num> Retry request if transient problems occur
   arguments << "--retry-connrefused"; // Retry on connection refused (use with --retry)
+  arguments << "--retry-all-errors"; // Retry all errors.
   arguments << "--retry-delay" << QString::number(m_config.waitSeconds); // <seconds> Wait time between retries
   arguments << "--globoff"; // Switch off the URL globbing function, parses urls with {}[] chars.  
   arguments << "--output" << m_item->outputName + m_config.extension; // with temporal extension, if any.
