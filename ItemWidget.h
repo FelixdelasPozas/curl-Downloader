@@ -102,6 +102,7 @@ class ItemWidget
   protected:
     virtual void paintEvent(QPaintEvent *event) override;
     virtual void mousePressEvent(QMouseEvent *) override;
+    virtual void enterEvent(QEnterEvent *event) override;
 
   private: 
     enum class Status: char { STARTING = 0, DOWNLOADING = 1, RETRYING = 2, ERROR_ = 3, FINISHED = 4, ABORTED = 5, PAUSED = 6 };

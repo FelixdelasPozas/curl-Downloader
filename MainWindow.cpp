@@ -171,9 +171,6 @@ void MainWindow::onProcessFinished()
     m_widgets.erase(widgetIt);
     m_items.erase(itemIt);
     
-    m_scrollLayout->removeWidget(widget);
-    widget->deleteLater();
-
     // rename and remove only if QProcess no longer exists and curl has finished.
     if(hasFinished)
     {
@@ -213,6 +210,9 @@ void MainWindow::onProcessFinished()
         }
       }
     }
+
+    m_scrollLayout->removeWidget(widget);
+    widget->deleteLater();
 
     delete item;
   }

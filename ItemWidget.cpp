@@ -309,7 +309,7 @@ void ItemWidget::startProcess()
 void ItemWidget::stopProcess()
 {
   int remainingTime = 0;
-  bool timerIsActive = m_timer.isActive();
+  const bool timerIsActive = m_timer.isActive();
 
   auto reactivateTimer = [&]()
   {
@@ -417,6 +417,14 @@ void ItemWidget::mousePressEvent(QMouseEvent *)
 
     delete item;
   }
+}
+
+//----------------------------------------------------------------------------
+void ItemWidget::enterEvent(QEnterEvent* event)
+{
+  QWidget::enterEvent(event);
+  setCursor(Qt::ArrowCursor);
+  QApplication::processEvents();
 }
 
 //----------------------------------------------------------------------------
