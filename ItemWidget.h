@@ -174,13 +174,23 @@ class ItemWidget
      */
     void stopProcessImplementation();
 
+    /**
+     * @brief Updates the widget tooltip based on the status of the item.
+     */
+    void updateTooltip();
+
   private:
+    enum class ResumeType:char { UNKNOWN = 0, YES = 1, NO = 2 };
+
     Utils::ItemInformation *m_item;       /** item information. */
     const Utils::Configuration &m_config; /** application configuration reference. */
     bool m_finished;                      /** true if the item has been downloaded and false otherwise. */
     bool m_aborted;                       /** true if aborted and false otherwise. */
     bool m_paused;                        /** true if paused and false otherwise. */
-    float m_progressVal;                  /** progress value in [0,100] */
+    ResumeType m_supportsResume;          /** server supports resuming. */
+    int m_resumed;                        /** number of times resumed. */
+    QString m_remainSize;                 /** remaining file size. */
+    unsigned int m_progressVal;           /** progress value in [0,100] */
     ConsoleOutputDialog m_console;        /** console text dialog. */
     QProcess m_process;                   /** curl process. */
     QTimer m_timer;                       /** Retry timer. */

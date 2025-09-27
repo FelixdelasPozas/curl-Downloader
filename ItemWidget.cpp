@@ -41,6 +41,8 @@ ItemWidget::ItemWidget(const Utils::Configuration &config, Utils::ItemInformatio
 , m_finished{false}
 , m_aborted{false}
 , m_paused{false}
+, m_supportsResume{ResumeType::UNKNOWN}
+, m_resumed{0}
 , m_progressVal{0}
 , m_console{parent}
 , m_process{this}
@@ -55,11 +57,11 @@ ItemWidget::ItemWidget(const Utils::Configuration &config, Utils::ItemInformatio
 
   connectSignals();
 
-  setToolTip(m_item->toText());
-
   m_filename->setText(m_item->outputName);
   updateWidget(0, "??", "--:--:--");
   setStatus(Status::STARTING);
+  updateTooltip();
+  
   startProcess();
 }
 
@@ -129,6 +131,12 @@ void ItemWidget:: updateWidget(const unsigned int progressValue, const QString &
 {
   if(m_progressVal != progressValue)
   {
+    if(progressValue < m_progressVal)
+    {
+      ++m_resumed;
+      updateTooltip();
+    }
+
     m_progressVal = progressValue;
     emit progress();
   }
@@ -204,6 +212,30 @@ void ItemWidget::onTextReady()
     bool isValid = false;
     const auto percentage = parts.front().toUInt(&isValid);
     if(!isValid || percentage > 100 || parts.size() != 12) continue;
+
+    // 0 is progress, 1 is total size.
+    const auto remainSize = (parts[1].isEmpty() || parts[1].compare("0") == 0) ? QString() : parts[1];
+    if(m_remainSize.isEmpty() && !remainSize.isEmpty())
+    {
+      m_remainSize = remainSize;
+    }
+
+    if(m_supportsResume == ResumeType::UNKNOWN && (m_resumed > 0))
+    {
+      if(!m_remainSize.isEmpty() && !remainSize.isEmpty())
+      { 
+        if(m_remainSize.compare(remainSize) == 0)
+        {
+          m_supportsResume = ResumeType::NO;
+        }
+        else
+        {
+          m_supportsResume = ResumeType::YES;
+        }
+      
+        updateTooltip();
+      }
+    }
 
     updateWidget(percentage, parts[11].remove('\n').remove('\r'), parts[10]);  
     setStatus(Status::DOWNLOADING);
@@ -362,13 +394,23 @@ void ItemWidget::paintEvent(QPaintEvent *event)
 {
   const int progressXPoint = size().width() * m_progressVal/100.f;
   auto wRect = rect();
+
+	QPainter painter(this);
+  painter.setPen(Qt::transparent);
+
+  if(m_resumed > 0 && m_supportsResume == ResumeType::NO)
+  {
+    // red background to notify user.
+    painter.setBrush(QColor(255,200,200));
+    painter.drawRect(wRect);
+  }
+
   wRect.setWidth(std::min(progressXPoint, wRect.width()));
 
   // green progress background.
-	QPainter painter(this);
-  painter.setPen(Qt::transparent);
   painter.setBrush(QColor(120, 255, 120));
   painter.drawRect(wRect);
+
   painter.end();
 
   QWidget::paintEvent(event);
@@ -473,4 +515,13 @@ void ItemWidget::stopProcessImplementation()
     m_process.kill();
     m_process.waitForFinished();
   }
+}
+
+//----------------------------------------------------------------------------
+void ItemWidget::updateTooltip()
+{
+  auto toText = [](const ResumeType &value){ return value == ResumeType::UNKNOWN ? "Unknown" : (value == ResumeType::NO ? "No":"Yes"); };
+
+  const QString tooltipText = m_item->toText() + "\nTimes resumed: " + QString::number(m_resumed) + "\nServer can resume: " + toText(m_supportsResume);
+  setToolTip(tooltipText);
 }

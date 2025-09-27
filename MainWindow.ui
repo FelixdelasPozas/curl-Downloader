@@ -161,7 +161,7 @@
     <string>Minimize</string>
    </property>
    <property name="toolTip">
-    <string>Minimizes the application to the tray menu.</string>
+    <string>Minimizes the application to the system tray</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>
