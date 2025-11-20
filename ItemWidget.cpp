@@ -224,7 +224,7 @@ void ItemWidget::onTextReady()
     {
       if(!m_remainSize.isEmpty() && !remainSize.isEmpty())
       { 
-        if(m_remainSize.compare(remainSize) == 0)
+        if(m_remainSize.compare(remainSize, Qt::CaseInsensitive) == 0)
         {
           m_supportsResume = ResumeType::NO;
         }
@@ -441,7 +441,7 @@ void ItemWidget::mousePressEvent(QMouseEvent *)
       m_process.kill();
       m_process.waitForFinished();
 
-      if(previousName.compare(m_item->outputName) != 0)
+      if(previousName.compare(m_item->outputName, Qt::CaseSensitive) == 0)
       {
         auto itemDir = QDir(m_config.downloadPath);
         if(itemDir.exists(previousName) && !itemDir.rename(previousName + m_config.extension, m_item->outputName + m_config.extension))

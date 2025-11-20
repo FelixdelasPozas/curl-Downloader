@@ -45,6 +45,8 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
 , m_needsExit{false}
 , m_trayIcon{new QSystemTrayIcon(QIcon(":/Downloader/download-bold.svg"), this)}
 , m_taskbarButton{this}
+, m_addItemDialog{nullptr}
+, m_aboutDialog{nullptr}
 {
   setupUi(this);
   setMinimumWidth(600);
@@ -87,15 +89,31 @@ MainWindow::~MainWindow()
 //----------------------------------------------------------------------------
 void MainWindow::showAboutDialog()
 {
+  if(m_aboutDialog)
+  {
+    m_aboutDialog->raise();
+    return;
+  }
+
   AboutDialog dialog(m_config, this);
+  m_aboutDialog = &dialog;
   dialog.exec();
+  m_aboutDialog = nullptr;
 }
 
 //----------------------------------------------------------------------------
 void MainWindow::addItem()
 {
+  if(m_addItemDialog != nullptr)
+  {
+    m_addItemDialog->raise();
+    return;
+  }
+
   AddItemDialog dialog(this);
+  m_addItemDialog = &dialog;
   const auto value = dialog.exec();
+  m_addItemDialog = nullptr;
 
   if(value == QDialog::Rejected) return;
 
