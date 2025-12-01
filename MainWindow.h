@@ -123,8 +123,6 @@ class MainWindow
     bool m_needsExit;                              /** true if the application has to quit and false to minimize to tray. */
     QSystemTrayIcon *m_trayIcon;                   /** tray icon. */
     QTaskBarButton m_taskbarButton;                /** taskbar progress button. */
-    AddItemDialog *m_addItemDialog;                /** pointer to the current add item dialog, to avoid multiple. */
-    AboutDialog *m_aboutDialog;                    /** pointer to the current about dialog, to avoid multiple. */
 };
 
 #endif

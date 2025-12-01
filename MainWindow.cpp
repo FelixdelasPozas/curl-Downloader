@@ -45,8 +45,6 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
 , m_needsExit{false}
 , m_trayIcon{new QSystemTrayIcon(QIcon(":/Downloader/download-bold.svg"), this)}
 , m_taskbarButton{this}
-, m_addItemDialog{nullptr}
-, m_aboutDialog{nullptr}
 {
   setupUi(this);
   setMinimumWidth(600);
@@ -89,31 +87,35 @@ MainWindow::~MainWindow()
 //----------------------------------------------------------------------------
 void MainWindow::showAboutDialog()
 {
-  if(m_aboutDialog)
+  static AboutDialog* s_aboutDialog = nullptr;
+
+  if(s_aboutDialog != nullptr)
   {
-    m_aboutDialog->raise();
+    s_aboutDialog->raise();
     return;
   }
 
   AboutDialog dialog(m_config, this);
-  m_aboutDialog = &dialog;
+  s_aboutDialog = &dialog;
   dialog.exec();
-  m_aboutDialog = nullptr;
+  s_aboutDialog = nullptr;
 }
 
 //----------------------------------------------------------------------------
 void MainWindow::addItem()
 {
-  if(m_addItemDialog != nullptr)
+  static AddItemDialog* s_addItemDialog = nullptr;
+
+  if(s_addItemDialog != nullptr)
   {
-    m_addItemDialog->raise();
+    s_addItemDialog->raise();
     return;
   }
 
   AddItemDialog dialog(this);
-  m_addItemDialog = &dialog;
+  s_addItemDialog = &dialog;
   const auto value = dialog.exec();
-  m_addItemDialog = nullptr;
+  s_addItemDialog = nullptr;
 
   if(value == QDialog::Rejected) return;
 
@@ -249,7 +251,6 @@ void MainWindow::connectSignals()
 {
   connect(this->actionExit_application,     SIGNAL(triggered(bool)), this, SLOT(quitApplication()));
   connect(this->actionAbout,                SIGNAL(triggered(bool)), this, SLOT(showAboutDialog()));
-  connect(this->actionExit_application,     SIGNAL(triggered(bool)), this, SLOT(close()));
   connect(this->actionAdd_file_to_download, SIGNAL(triggered(bool)), this, SLOT(addItem()));
   connect(this->actionApplication_settings, SIGNAL(triggered(bool)), this, SLOT(showConfigurationDialog()));
 
@@ -260,11 +261,33 @@ void MainWindow::connectSignals()
 //----------------------------------------------------------------------------
 void MainWindow::quitApplication()
 {
-  m_needsExit = true;
-  if(this->isVisible())
-    close();
-  else
-    closeEvent(nullptr);
+  static QMessageBox* s_closeWarningDialog = nullptr;
+
+    if (s_closeWarningDialog != nullptr) {
+        s_closeWarningDialog->raise();
+        return;
+    }
+
+    if (!m_items.empty()) {
+        QMessageBox warningMsg(this);
+        s_closeWarningDialog = &warningMsg;
+        warningMsg.setWindowIcon(QIcon(":/Downloader/download-bold.svg"));
+        warningMsg.setIcon(QMessageBox::Icon::Critical);
+        warningMsg.setText("There are items downloading. Please wait for them to finish or cancel them before exiting "
+                           "the application.");
+        warningMsg.setStandardButtons(QMessageBox::StandardButton::Ok);
+        warningMsg.setDefaultButton(QMessageBox::StandardButton::Ok);
+        warningMsg.exec();
+
+        s_closeWarningDialog = nullptr;
+        return;
+    }
+
+    m_needsExit = true;
+    if (this->isVisible())
+        close();
+    else
+        closeEvent(nullptr);
 }
 
 //----------------------------------------------------------------------------
