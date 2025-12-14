@@ -296,7 +296,7 @@ namespace Utils
       void clicked();
 
     protected:
-      void mousePressEvent(QMouseEvent* e)
+      void mousePressEvent(QMouseEvent* e) override
       {
         emit clicked();
         QLabel::mousePressEvent(e);

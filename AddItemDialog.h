@@ -38,10 +38,12 @@ class AddItemDialog
   public:
     /**
      * @brief AddItemDialog class constructor.
+     * @param config Application configuration struct reference.
+     * @param isUpdate true if updating an item and false otherwise. 
      * @param parent Raw pointer of the widget parent of this one. 
      * @param f Dialog flags. 
      */
-    AddItemDialog(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+    AddItemDialog(const Utils::Configuration &config, const bool isUpdate, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
     /**
      * @brief AddItemDialog class virtual destructor. 
@@ -68,6 +70,10 @@ class AddItemDialog
      * @brief Modifies en UI when the text changes. 
      */
     void onServerTextChanged();
+
+  private:
+    const Utils::Configuration& m_config; /** Application configuration reference.  */
+    const bool m_updating;                /** false if a new item and true if updating. */
 };
 
 #endif

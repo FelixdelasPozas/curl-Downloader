@@ -24,10 +24,13 @@
 #include <QHostAddress>
 #include <QAbstractSocket>
 #include <QHostAddress>
+#include <QDir>
 
 //----------------------------------------------------------------------------
-AddItemDialog::AddItemDialog(QWidget *parent, Qt::WindowFlags f)
+AddItemDialog::AddItemDialog(const Utils::Configuration &config, const bool isUpdate, QWidget *parent, Qt::WindowFlags f)
 : QDialog(parent, f)
+, m_config{config}
+, m_updating{isUpdate}
 {
   setupUi(this);
 
@@ -85,12 +88,37 @@ void AddItemDialog::closeEvent(QCloseEvent *e)
     QMessageBox msgBox(this);
     msgBox.setWindowTitle("Item information");
     msgBox.setStandardButtons(QMessageBox::Button::Ok);
-    msgBox.setText("The item information is not valid.");
+    msgBox.setText("The item information is not valid. Url is invalid or proxy server is invalid.");
     msgBox.exec();
 
     return;
   }
 
+  if(!m_updating)
+  {
+    const QDir downloadDir{m_config.downloadPath};
+    const auto name = m_name->text().isEmpty() ? QUrl{m_url->text()}.fileName() : m_name->text();
+
+    if(downloadDir.exists(name + m_config.extension))
+    {
+        e->setAccepted(false);
+        e->ignore();
+
+        if (m_name->text().isEmpty()) {
+            m_name->setText(name);
+        }
+
+        QMessageBox msgBox(this);
+        msgBox.setWindowTitle("Item information");
+        msgBox.setStandardButtons(QMessageBox::Button::Ok);
+        msgBox.setText("The item information is not valid. There is already another item with the same output filename. Change it or cancel.");
+        msgBox.setDetailedText(QString("Output name: %1").arg(name));
+        msgBox.exec();
+
+        return;
+    }
+  }
+  
   accept();
 }
 

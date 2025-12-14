@@ -419,7 +419,7 @@ void ItemWidget::paintEvent(QPaintEvent *event)
 //----------------------------------------------------------------------------
 void ItemWidget::mousePressEvent(QMouseEvent *)
 {
-  AddItemDialog dialog(this);
+  AddItemDialog dialog(m_config, true, this);
   dialog.setWindowTitle("Modify item");
   dialog.m_url->setReadOnly(true);
   dialog.setItem(m_item);
@@ -441,8 +441,23 @@ void ItemWidget::mousePressEvent(QMouseEvent *)
       m_process.kill();
       m_process.waitForFinished();
 
-      if(previousName.compare(m_item->outputName, Qt::CaseSensitive) == 0)
+      if(previousName.compare(m_item->outputName, Qt::CaseSensitive) != 0)
       {
+        QDir downloadDir{m_config.downloadPath};
+        if(downloadDir.exists(m_item->outputName))
+        {
+          QMessageBox msgBox{this};
+          msgBox.setWindowIcon(QIcon(":/Downloader/download-bold.svg"));
+          msgBox.setIcon(QMessageBox::Icon::Critical);
+          msgBox.setText(QString("There is already a download with the output name '%1'. Change it or cancel the modification.").arg(m_item->outputName));
+          msgBox.setStandardButtons(QMessageBox::StandardButton::Ok);
+          msgBox.setDefaultButton(QMessageBox::StandardButton::Ok);
+          msgBox.exec();
+
+          mousePressEvent(nullptr);
+          return;
+        }
+
         auto itemDir = QDir(m_config.downloadPath);
         if(itemDir.exists(previousName) && !itemDir.rename(previousName + m_config.extension, m_item->outputName + m_config.extension))
         {

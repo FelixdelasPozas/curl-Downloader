@@ -112,7 +112,7 @@ void MainWindow::addItem()
     return;
   }
 
-  AddItemDialog dialog(this);
+  AddItemDialog dialog(m_config, false, this);
   s_addItemDialog = &dialog;
   const auto value = dialog.exec();
   s_addItemDialog = nullptr;
@@ -132,7 +132,7 @@ void MainWindow::addItem()
     delete item;
     return;
   }
-  
+
   m_items.push_back(item);
   
   auto itemWidget = new ItemWidget(m_config, m_items.back());
