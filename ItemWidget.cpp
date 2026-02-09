@@ -205,13 +205,17 @@ void ItemWidget::onTextReady()
   for(auto text: {stderrText, stdoutText})
   {
     if(text.isEmpty()) continue;
+    // curl new format for long downloads use 'd' for days, 'h' for hours and 'm' for minutes
+    // breaking the fixed number of parts of the output. Try to fix it.
+    text = text.replace("d ", "d").replace("h ","h");
+    
     auto parts = text.split(' ');
     parts.removeAll("");
     parts.removeAll(" ");
     if(parts.size() < 1) continue;
     bool isValid = false;
     const auto percentage = parts.front().toUInt(&isValid);
-    if(!isValid || percentage > 100 || parts.size() != 12) continue;
+    if(!isValid || percentage > 100 || parts.size() < 10) continue;
 
     // 0 is progress, 1 is total size.
     const auto remainSize = (parts[1].isEmpty() || parts[1].compare("0") == 0) ? QString() : parts[1];
@@ -237,7 +241,7 @@ void ItemWidget::onTextReady()
       }
     }
 
-    updateWidget(percentage, parts[11].remove('\n').remove('\r'), parts[10]);  
+    updateWidget(percentage, parts.back().remove('\n').remove('\r'), parts[10]);  
     setStatus(Status::DOWNLOADING);
     m_console.addText(text + "\n");
     break;
