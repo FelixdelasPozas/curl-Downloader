@@ -56,8 +56,8 @@ void AddItemDialog::setItem(const Utils::ItemInformation *item)
 Utils::ItemInformation* AddItemDialog::getItem() const
 {
   const auto urlText = m_url->text().simplified();
-  const auto serverText = m_serverIP->text().simplified().remove(' ');
-  const auto portText = m_serverPort->text().simplified().remove(' ');
+  const auto serverText = m_serverIP->text().simplified().remove(' ').remove('\t').remove('\n');
+  const auto portText = m_serverPort->text().simplified().remove(' ').remove('\t').remove('\n');
 
   auto item = new Utils::ItemInformation(QUrl(urlText),
                                          serverText,
@@ -99,26 +99,28 @@ void AddItemDialog::closeEvent(QCloseEvent *e)
     const QDir downloadDir{m_config.downloadPath};
     const auto name = m_name->text().isEmpty() ? QUrl{m_url->text()}.fileName() : m_name->text();
 
-    if(downloadDir.exists(name + m_config.extension))
-    {
-        e->setAccepted(false);
-        e->ignore();
-
-        if (m_name->text().isEmpty()) {
-            m_name->setText(name);
-        }
-
+    if (downloadDir.exists(name + m_config.extension)) {
         QMessageBox msgBox(this);
         msgBox.setWindowTitle("Item information");
-        msgBox.setStandardButtons(QMessageBox::Button::Ok);
-        msgBox.setText("The item information is not valid. There is already another item with the same output filename. Change it or cancel.");
+        msgBox.setStandardButtons(QMessageBox::Button::Ok | QMessageBox::Button::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Button::Cancel);
+        msgBox.setText("There is already another item with the same output filename. Accept to resume the download or "
+                       "cancel to retry.");
         msgBox.setDetailedText(QString("Output name: %1").arg(name));
-        msgBox.exec();
 
-        return;
+        if (QMessageBox::StandardButton::Cancel == msgBox.exec()) {
+            e->setAccepted(false);
+            e->ignore();
+
+            if (m_name->text().isEmpty()) {
+                m_name->setText(name);
+            }
+
+            return;
+        }
     }
   }
-  
+
   accept();
 }
 
