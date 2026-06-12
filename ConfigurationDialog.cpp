@@ -52,10 +52,15 @@ void ConfigurationDialog::setConfiguration(const Utils::Configuration &config)
 //----------------------------------------------------------------------------
 void ConfigurationDialog::onCurlFolderClicked()
 {
+#ifdef __MINGW64__
+  QString filter = "Executable file (*.exe)";
+#else
+  QString filter = "Executable file (*)"
+#endif
   const auto curlPath = QFileDialog::getOpenFileName(this, 
                                                      "Select curl executable", 
                                                      QDir::currentPath(),
-                                                     "Executable file (*.exe)",
+                                                     filter,
                                                      nullptr,
                                                      QFileDialog::Options::enum_type::ReadOnly|QFileDialog::Options::enum_type::DontUseNativeDialog);
 

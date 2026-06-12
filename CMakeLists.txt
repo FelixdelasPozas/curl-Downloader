@@ -4,8 +4,8 @@ project(Downloader)
 
 # Version Number
 set (VERSION_MAJOR 1)
-set (VERSION_MINOR 6)
-set (VERSION_PATCH 5)
+set (VERSION_MINOR 7)
+set (VERSION_PATCH 0)
 
 # Find the QtWidgets library
 find_package(Qt6 COMPONENTS Core Gui Widgets Multimedia Network)
@@ -21,7 +21,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Widgets_EXECUTABLE_COMPILE_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Mutimedia_EXECUTABLE_COMPILE_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6WinExtras_EXECUTABLE_COMPILE_FLAGS}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Network_EXECUTABLE_COMPILE_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -m64 -Wall -mwindows -municode -Wno-deprecated")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20 -m64 -Wall -Wno-deprecated")
 
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
@@ -29,9 +29,10 @@ if (CMAKE_BUILD_TYPE MATCHES Debug)
 endif (CMAKE_BUILD_TYPE MATCHES Debug)
 
 if(DEFINED MINGW)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mwindows -municode")
   configure_file("${PROJECT_SOURCE_DIR}/main.rc.in" "${PROJECT_BINARY_DIR}/main.rc")
   configure_file("${PROJECT_SOURCE_DIR}/installer/script.iss.in" "${PROJECT_BINARY_DIR}/script.iss")
-  set(SOURCE_FILES ${SOURCE_FILES} ${CMAKE_CURRENT_BINARY_DIR}/main.rc)
+  set(SOURCE_FILES ${SOURCE_FILES} ${CMAKE_CURRENT_BINARY_DIR}/main.rc external/QTaskBarButton.cpp)
   set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -O coff -o <OBJECT> -i <SOURCE>")
   enable_language(RC)
 endif(DEFINED MINGW)
@@ -59,7 +60,6 @@ set (SOURCE_FILES
   ItemWidget.cpp
   Utils.cpp
   ConsoleOutputDialog.cpp
-  external/QTaskBarButton.cpp
 )
   
 set (EXTERNAL_LIBRARIES

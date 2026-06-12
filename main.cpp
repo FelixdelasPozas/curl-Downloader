@@ -42,11 +42,19 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 }
 
 //-----------------------------------------------------------------------------
+#ifdef __MINGW64__    
 int wmain(int argc, wchar_t *argv[], wchar_t *envp[])
+#else
+int main(int argc, char *argv[])
+#endif
 {
   qInstallMessageHandler(myMessageOutput);
 
+#ifdef __MINGW64__    
   QApplication app(__argc, __argv);
+#else
+  QApplication app(argc, argv);
+#endif
   app.setQuitOnLastWindowClosed(false);
 
   // allow only one instance

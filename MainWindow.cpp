@@ -44,7 +44,9 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
 : QMainWindow(parent, flags)
 , m_needsExit{false}
 , m_trayIcon{new QSystemTrayIcon(QIcon(":/Downloader/download-bold.svg"), this)}
+#ifdef __MINGW64__    
 , m_taskbarButton{this}
+#endif
 {
   setupUi(this);
   setMinimumWidth(600);
@@ -311,7 +313,9 @@ void MainWindow::closeEvent(QCloseEvent *e)
 void MainWindow::showEvent(QShowEvent *e)
 {
   QMainWindow::showEvent(e);
+#ifdef __MINGW64__    
   m_taskbarButton.restart();
+#endif  
   onWidgetProgress(); // force set value.
 }
 
@@ -414,7 +418,9 @@ void MainWindow::onWidgetProgress()
   else
     m_trayIcon->setToolTip(tr("No downloads."));
 
+#ifdef __MINGW64__    
   const auto state = progressValue == 0 ? QTaskBarButton::State::Invisible : QTaskBarButton::State::Normal;
   m_taskbarButton.setState(state);
   m_taskbarButton.setValue(static_cast<int>(progressValue));
+#endif  
 }

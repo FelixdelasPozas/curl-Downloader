@@ -122,7 +122,9 @@ class MainWindow
     std::vector<ItemWidget *> m_widgets;           /** list of item widgets. */
     bool m_needsExit;                              /** true if the application has to quit and false to minimize to tray. */
     QSystemTrayIcon *m_trayIcon;                   /** tray icon. */
+#ifdef __MINGW64__    
     QTaskBarButton m_taskbarButton;                /** taskbar progress button. */
+#endif
 };
 
 #endif

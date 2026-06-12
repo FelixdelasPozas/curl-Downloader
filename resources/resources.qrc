@@ -1,6 +1,6 @@
 <RCC>
   <qresource prefix="/Downloader">
-	<file>qt.ico</file>
+	<file>Qt.ico</file>
 	<file>download.ico</file>	
 	<file>download.png</file>	
 	<file>download.svg</file>	

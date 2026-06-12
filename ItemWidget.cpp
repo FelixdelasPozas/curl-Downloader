@@ -214,10 +214,11 @@ void ItemWidget::onTextReady()
     auto parts = text.split(' ');
     parts.removeAll("");
     parts.removeAll(" ");
-    if(parts.size() < 1) continue;
+    if(parts.empty()) continue;
     bool isValid = false;
     const auto percentage = parts.front().toUInt(&isValid);
-    if(!isValid || percentage > 100 || parts.size() < 10) continue;
+    m_console.addText(text + "\n");
+    if(!isValid || percentage > 100 || parts.size() < 12) continue;
 
     // 0 is progress, 1 is total size.
     const auto remainSize = (parts[1].isEmpty() || parts[1].compare("0") == 0) ? QString() : parts[1];
@@ -245,7 +246,6 @@ void ItemWidget::onTextReady()
 
     updateWidget(percentage, parts.back().remove('\n').remove('\r'), parts[10]);  
     setStatus(Status::DOWNLOADING);
-    m_console.addText(text + "\n");
     break;
   }
 }
