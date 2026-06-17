@@ -55,7 +55,7 @@ void ConfigurationDialog::onCurlFolderClicked()
 #ifdef __MINGW64__
   QString filter = "Executable file (*.exe)";
 #else
-  QString filter = "Executable file (*)"
+  QString filter = "Executable file (*)";
 #endif
   const auto curlPath = QFileDialog::getOpenFileName(this, 
                                                      "Select curl executable", 
