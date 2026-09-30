@@ -161,7 +161,7 @@ void ItemWidget::onFinished(int code , QProcess::ExitStatus status)
 
   m_console.addText(message + "\n");
 
-  if(m_supportsResume == ResumeType::UNKNOWN)
+  if(m_supportsResume == ResumeType::UNKNOWN && !m_aborted)
   {
     // we could still report errors for the head request
     if (code != 0 && code != 28)
@@ -171,7 +171,7 @@ void ItemWidget::onFinished(int code , QProcess::ExitStatus status)
     return;    
   }
 
-  if(m_tries == 0)
+  if(m_tries == 0 && !m_aborted)
   {
     m_timer.singleShot(m_config.waitSeconds*1000, this, SLOT(startProcess()));      
     return;
@@ -332,7 +332,7 @@ void ItemWidget::startDownload()
   const QStringList protocols = {"--socks4", "--socks5"};
 
   if(m_process.state() != QProcess::ProcessState::NotRunning)
-    stopProcess();
+    stopProcessImplementation();
 
   m_process.setWorkingDirectory(m_config.downloadPath);
   m_process.setProgram(m_config.curlPath);
@@ -581,7 +581,7 @@ void ItemWidget::updateTooltip()
 void ItemWidget::checkResumeSupport()
 {
   if(m_process.state() != QProcess::ProcessState::NotRunning)
-    stopProcess();
+    stopProcessImplementation();
 
   setStatus(ItemWidget::Status::CHECKING);
 
