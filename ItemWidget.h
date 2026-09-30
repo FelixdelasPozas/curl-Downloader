@@ -105,7 +105,7 @@ class ItemWidget
     virtual void enterEvent(QEnterEvent *event) override;
 
   private: 
-    enum class Status: char { STARTING = 0, DOWNLOADING = 1, RETRYING = 2, ERROR_ = 3, FINISHED = 4, ABORTED = 5, PAUSED = 6 };
+    enum class Status: char { STARTING = 0, DOWNLOADING = 1, RETRYING = 2, ERROR_ = 3, FINISHED = 4, ABORTED = 5, PAUSED = 6, CHECKING = 7 };
 
   private slots:
     /**
@@ -142,6 +142,11 @@ class ItemWidget
     void startProcess();
 
   private:
+    /** 
+     * @brief Starts the download.
+     */
+    void startDownload();
+
     /**
      * @brief Connects signals to slots.
     */
@@ -182,13 +187,18 @@ class ItemWidget
   private:
     enum class ResumeType:char { UNKNOWN = 0, YES = 1, NO = 2 };
 
+    /**
+     * @brief Starts the check for resume process. 
+     */
+    void checkResumeSupport();   
+
     Utils::ItemInformation *m_item;       /** item information. */
     const Utils::Configuration &m_config; /** application configuration reference. */
     bool m_finished;                      /** true if the item has been downloaded and false otherwise. */
     bool m_aborted;                       /** true if aborted and false otherwise. */
     bool m_paused;                        /** true if paused and false otherwise. */
     ResumeType m_supportsResume;          /** server supports resuming. */
-    int m_resumed;                        /** number of times resumed. */
+    int m_tries;                          /** number of times resumed. */
     QString m_remainSize;                 /** remaining file size. */
     unsigned int m_progressVal;           /** progress value in [0,100] */
     ConsoleOutputDialog m_console;        /** console text dialog. */

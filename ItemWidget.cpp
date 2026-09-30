@@ -42,7 +42,7 @@ ItemWidget::ItemWidget(const Utils::Configuration &config, Utils::ItemInformatio
 , m_aborted{false}
 , m_paused{false}
 , m_supportsResume{ResumeType::UNKNOWN}
-, m_resumed{0}
+, m_tries{0}
 , m_progressVal{0}
 , m_console{parent}
 , m_process{this}
@@ -131,14 +131,9 @@ void ItemWidget:: updateWidget(const unsigned int progressValue, const QString &
 {
   if(m_progressVal != progressValue)
   {
-    if(progressValue < m_progressVal)
-    {
-      ++m_resumed;
-      updateTooltip();
-    }
-
     m_progressVal = progressValue;
     emit progress();
+    updateTooltip();
   }
   
   QString timeString = timeRemain;
@@ -166,15 +161,31 @@ void ItemWidget::onFinished(int code , QProcess::ExitStatus status)
 
   m_console.addText(message + "\n");
 
+  if(m_supportsResume == ResumeType::UNKNOWN)
+  {
+    // we could still report errors for the head request
+    if (code != 0 && code != 28)
+      setStatus(Status::ERROR_);
+
+    m_timer.singleShot(m_config.waitSeconds*1000, this, SLOT(startProcess()));      
+    return;    
+  }
+
+  if(m_tries == 0)
+  {
+    m_timer.singleShot(m_config.waitSeconds*1000, this, SLOT(startProcess()));      
+    return;
+  }
+
   if(m_paused)
     return;
 
   if(!m_finished && !m_aborted)
-    m_finished = (code == 0);
+    m_finished = (code == 0 && status == QProcess::NormalExit);
 
   if(!m_finished && !m_aborted)
   {
-    m_finished = (code == 0);
+    m_finished = (code == 0 && status == QProcess::NormalExit);
     setStatus(Status::RETRYING);
     m_console.addText(QString("Retrying in %1 seconds...\n").arg(m_config.waitSeconds));
     m_timer.singleShot(m_config.waitSeconds*1000, this, SLOT(startProcess()));
@@ -204,49 +215,49 @@ void ItemWidget::onTextReady()
   const auto stderrText = QString(m_process.readAllStandardError());
   const auto stdoutText = QString(m_process.readAllStandardOutput());
 
-  for(auto text: {stderrText, stdoutText})
+  if(m_supportsResume == ResumeType::UNKNOWN)
   {
-    if(text.isEmpty()) continue;
-    // curl new format for long downloads use 'd' for days, 'h' for hours and 'm' for minutes
-    // breaking the fixed number of parts of the output. Try to fix it.
-    text = text.replace("d ", "d").replace("h ","h");
-    
-    auto parts = text.split(' ');
-    parts.removeAll("");
-    parts.removeAll(" ");
-    if(parts.empty()) continue;
-    bool isValid = false;
-    const auto percentage = parts.front().toUInt(&isValid);
-    m_console.addText(text + "\n");
-    if(!isValid || percentage > 100 || parts.size() < 12) continue;
-
-    // 0 is progress, 1 is total size.
-    const auto remainSize = (parts[1].isEmpty() || parts[1].compare("0") == 0) ? QString() : parts[1];
-    if(m_remainSize.isEmpty() && !remainSize.isEmpty())
+    for(auto text: {stderrText, stdoutText})
     {
-      m_remainSize = remainSize;
-    }
-
-    if(m_supportsResume == ResumeType::UNKNOWN && (m_resumed > 0))
-    {
-      if(!m_remainSize.isEmpty() && !remainSize.isEmpty())
-      { 
-        if(m_remainSize.compare(remainSize, Qt::CaseInsensitive) == 0)
-        {
-          m_supportsResume = ResumeType::NO;
-        }
-        else
-        {
-          m_supportsResume = ResumeType::YES;
-        }
+      if(text.isEmpty()) continue;
+      m_console.addText(text + "\n");
       
-        updateTooltip();
+      // Look for HTTP status 206 or Accept‑Ranges header
+      if (text.contains("206") || text.contains("partial", Qt::CaseInsensitive) ||
+          text.contains("Accept-Ranges: bytes", Qt::CaseInsensitive))
+      {
+        m_supportsResume = ResumeType::YES;
+      }
+      else
+      {
+        m_supportsResume = ResumeType::NO;
       }
     }
 
-    updateWidget(percentage, parts.back().remove('\n').remove('\r'), parts[10]);  
-    setStatus(Status::DOWNLOADING);
-    break;
+    updateTooltip();                         // show new state
+  }
+  else
+  {
+    for(auto text: {stderrText, stdoutText})
+    {
+      if(text.isEmpty()) continue;
+      // curl new format for long downloads use 'd' for days, 'h' for hours and 'm' for minutes
+      // breaking the fixed number of parts of the output. Try to fix it.
+      text = text.replace("d ", "d").replace("h ","h");
+      
+      auto parts = text.split(' ');
+      parts.removeAll("");
+      parts.removeAll(" ");
+      if(parts.empty()) continue;
+      bool isValid = false;
+      const auto percentage = parts.front().toUInt(&isValid);
+      m_console.addText(text + "\n");
+      if(!isValid || percentage > 100 || parts.size() < 12) continue;
+
+      updateWidget(percentage, parts.back().remove('\n').remove('\r'), parts[10]);  
+      setStatus(Status::DOWNLOADING);
+      break;
+    }
   }
 }
 
@@ -293,6 +304,9 @@ void ItemWidget::setStatus(ItemWidget::Status status)
     case Status::ABORTED:
       statusText = QString("<b><span style=\"color:#aa00aa;\">Aborted</span></b>");
       break;
+    case Status::CHECKING:
+      statusText = QString("<b>Checking</b>");
+      break;
   }
 
   m_status->setText(statusText);
@@ -301,6 +315,20 @@ void ItemWidget::setStatus(ItemWidget::Status status)
 //----------------------------------------------------------------------------
 void ItemWidget::startProcess()
 {
+  if(m_supportsResume == ResumeType::UNKNOWN)
+  {
+    checkResumeSupport();
+  }
+  else
+  {
+    startDownload();
+  }
+}
+
+//----------------------------------------------------------------------------
+void ItemWidget::startDownload()
+{
+  ++m_tries;
   const QStringList protocols = {"--socks4", "--socks5"};
 
   if(m_process.state() != QProcess::ProcessState::NotRunning)
@@ -341,6 +369,8 @@ void ItemWidget::startProcess()
   m_process.start();
   m_process.setTextModeEnabled(true);  
   m_process.waitForStarted();
+  
+  updateTooltip();
 }
 
 //----------------------------------------------------------------------------
@@ -404,7 +434,7 @@ void ItemWidget::paintEvent(QPaintEvent *event)
 	QPainter painter(this);
   painter.setPen(Qt::transparent);
 
-  if(m_resumed > 0 && m_supportsResume == ResumeType::NO)
+  if(m_supportsResume == ResumeType::NO)
   {
     // red background to notify user.
     painter.setBrush(QColor(255,200,200));
@@ -543,6 +573,40 @@ void ItemWidget::updateTooltip()
 {
   auto toText = [](const ResumeType &value){ return value == ResumeType::UNKNOWN ? "Unknown" : (value == ResumeType::NO ? "No":"Yes"); };
 
-  const QString tooltipText = m_item->toText() + "\nTimes resumed: " + QString::number(m_resumed) + "\nServer can resume: " + toText(m_supportsResume);
+  const QString tooltipText = m_item->toText() + "\nTimes tried: " + QString::number(m_tries) + "\nServer can resume: " + toText(m_supportsResume);
   setToolTip(tooltipText);
+}
+
+// --------------------------------------------------------------------
+void ItemWidget::checkResumeSupport()
+{
+  if(m_process.state() != QProcess::ProcessState::NotRunning)
+    stopProcess();
+
+  setStatus(ItemWidget::Status::CHECKING);
+
+  QStringList args;
+  args << "--silent"                     // no progress bar
+       << "--head"                       // send HEAD request
+       << "--location"                   // follow redirects
+       << "--connect-timeout" << "30"    // avoid hanging
+       << "--range" << "0-0"             // request first byte
+       << "--url" << m_item->url.toString();
+
+  if (!m_item->server.isEmpty() && (m_item->protocol != Utils::Protocol::NONE))
+  {
+    args << "--proxy-insecure";
+    const QString serverText = QString("%1:%2").arg(m_item->server).arg(m_item->port);
+    args << (m_item->protocol == Utils::Protocol::SOCKS4
+              ? "--socks4" : "--socks5") << serverText;
+  }
+
+  m_process.setProgram(m_config.curlPath);
+  m_process.setArguments(args);
+  m_process.setWorkingDirectory(m_config.downloadPath);
+  m_process.setTextModeEnabled(true);
+
+  m_process.start();                         // async – onFinished()/onTextReady() will follow
+  m_process.setTextModeEnabled(true);  
+  m_process.waitForStarted();  
 }
