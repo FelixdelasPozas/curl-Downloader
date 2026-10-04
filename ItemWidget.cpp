@@ -212,53 +212,49 @@ void ItemWidget::onFinished(int code , QProcess::ExitStatus status)
 //----------------------------------------------------------------------------
 void ItemWidget::onTextReady()
 {
-  const auto stderrText = QString(m_process.readAllStandardError());
-  const auto stdoutText = QString(m_process.readAllStandardOutput());
+  auto textArray = m_process.readAllStandardOutput();
+  if(textArray.isEmpty()) textArray = m_process.readAllStandardError();
 
+  auto text = QString(textArray);
+  if(text.isEmpty()) return;
+  
   if(m_supportsResume == ResumeType::UNKNOWN)
   {
-    for(auto text: {stderrText, stdoutText})
-    {
-      if(text.isEmpty()) continue;
       m_console.addText(text + "\n");
-      
+
       // Look for HTTP status 206 or Accept‑Ranges header
       if (text.contains("206") || text.contains("partial", Qt::CaseInsensitive) ||
-          text.contains("Accept-Ranges: bytes", Qt::CaseInsensitive))
-      {
-        m_supportsResume = ResumeType::YES;
+          text.contains("Accept-Ranges: bytes", Qt::CaseInsensitive)) {
+          m_supportsResume = ResumeType::YES;
+      } else {
+          m_supportsResume = ResumeType::NO;
       }
-      else
-      {
-        m_supportsResume = ResumeType::NO;
-      }
-    }
-
-    updateTooltip();                         // show new state
   }
   else
   {
-    for(auto text: {stderrText, stdoutText})
-    {
-      if(text.isEmpty()) continue;
       // curl new format for long downloads use 'd' for days, 'h' for hours and 'm' for minutes
       // breaking the fixed number of parts of the output. Try to fix it.
-      text = text.replace("d ", "d").replace("h ","h");
-      
+      text = text.replace("d ", "d").replace("h ", "h");
+
       auto parts = text.split(' ');
       parts.removeAll("");
       parts.removeAll(" ");
-      if(parts.empty()) continue;
+      if (parts.empty()) {
+          return;
+      }
       bool isValid = false;
       const auto percentage = parts.front().toUInt(&isValid);
-      m_console.addText(text + "\n");
-      if(!isValid || percentage > 100 || parts.size() < 12) continue;
+      if (!isValid || percentage > 100 || parts.size() < 12) {
+          return;
+      }
 
-      updateWidget(percentage, parts.back().remove('\n').remove('\r'), parts[10]);  
+      m_console.addText(text + "\n");
+
+      updateWidget(percentage, parts.back().remove('\n').remove('\r'), parts[10]);
       setStatus(Status::DOWNLOADING);
-      break;
-    }
   }
+
+  updateTooltip(); 
 }
 
 //----------------------------------------------------------------------------
@@ -369,7 +365,7 @@ void ItemWidget::startDownload()
   m_process.start();
   m_process.setTextModeEnabled(true);  
   m_process.waitForStarted();
-  
+ 
   updateTooltip();
 }
 
@@ -604,9 +600,8 @@ void ItemWidget::checkResumeSupport()
   m_process.setProgram(m_config.curlPath);
   m_process.setArguments(args);
   m_process.setWorkingDirectory(m_config.downloadPath);
-  m_process.setTextModeEnabled(true);
 
-  m_process.start();                         // async – onFinished()/onTextReady() will follow
+  m_process.start();
   m_process.setTextModeEnabled(true);  
-  m_process.waitForStarted();  
+  m_process.waitForStarted(); 
 }
